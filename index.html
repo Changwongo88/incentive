@@ -809,7 +809,7 @@
                             <div class="space-y-3">
                                 <div class="flex items-center space-x-4">
                                     <label for="pi_t6_t5_rate" class="block text-sm font-medium text-gray-700 w-24">T6 → T5</label>
-                                    <input type="number" id="pi_t6_t5_rate" value="300" class="input-base rate-input">
+                                    <input type="number" id="pi_t6_t5_rate" value="500" class="input-base rate-input">
                                     <span class="text-sm text-gray-600">% 증가</span>
                                 </div>
                                 <div class="flex items-center space-x-4">
@@ -846,7 +846,7 @@
                             <div class="space-y-3">
                                 <div class="flex items-center space-x-4">
                                     <label for="lb_t6_t5_rate" class="block text-sm font-medium text-gray-700 w-24">T6 → T5</label>
-                                    <input type="number" id="lb_t6_t5_rate" value="150" class="input-base rate-input">
+                                    <input type="number" id="lb_t6_t5_rate" value="500" class="input-base rate-input">
                                     <span class="text-sm text-gray-600">% 증가</span>
                                 </div>
                                 <div class="flex items-center space-x-4">
@@ -1247,9 +1247,12 @@
                                 <p class="mt-2">※ 첫 두 줄은 제목/헤더로 자동 건너뜁니다.</p>
                                 <p class="mt-1">※ 연봉과 월급은 쉼표를 포함한 숫자(예: "61,400,000") 또는 숫자만 입력 가능합니다.</p>
                             </div>
-                            <div>
+                            <div class="flex gap-4">
                                 <button id="importCSV" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">
                                     CSV 파일 불러오기
+                                </button>
+                                <button id="exportCSV" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                                    CSV 파일 내보내기
                                 </button>
                             </div>
                         </div>
@@ -1808,14 +1811,14 @@
                 const selectedPeriod = getText('periodSelect'); // 'p1', 'p2', 'p3', 'p4'
 
                 // 성과 인센티브 Tier 배율 로직 입력값 (T6 기준)
-                const pi_t6_t5_rate = getValue('pi_t6_t5_rate') / 100; // 3.0 (기본값, 300% 증가)
+                const pi_t6_t5_rate = getValue('pi_t6_t5_rate') / 100; // 5.0 (기본값, 500% 증가)
                 const pi_t5_t4_rate = getValue('pi_t5_t4_rate') / 100; // 0.2
                 const pi_t4_t3_rate = getValue('pi_t4_t3_rate') / 100; // 0.3
                 const pi_t3_t2_rate = getValue('pi_t3_t2_rate') / 100; // 1.0
                 const pi_t2_t1_rate = getValue('pi_t2_t1_rate') / 100; // 2.0 (200% 증가)
                 
                 // 런칭 보너스 Tier 배율 로직 입력값 (T6 기준, 완만한 배율)
-                const lb_t6_t5_rate_mult = getValue('lb_t6_t5_rate') / 100; // 1.5 (기본값, 150% 증가)
+                const lb_t6_t5_rate_mult = getValue('lb_t6_t5_rate') / 100; // 5.0 (기본값, 500% 증가)
                 const lb_t5_t4_rate_mult = getValue('lb_t5_t4_rate') / 100; // 0.15
                 const lb_t4_t3_rate_mult = getValue('lb_t4_t3_rate') / 100; // 0.2
                 const lb_t3_t2_rate_mult = getValue('lb_t3_t2_rate') / 100; // 0.5
@@ -1941,7 +1944,7 @@
                 // 1. 성과 인센티브 Tier별 승수(Multiplier) 계산 (T6 기준 1.0)
                 const pi_multipliers = {
                     t6: 1.0, // T6 Base (최하위)
-                    t5: 1.0 * (1 + pi_t6_t5_rate), // T6의 300% 증가 = 4.0
+                    t5: 1.0 * (1 + pi_t6_t5_rate), // T6의 500% 증가 = 6.0
                     t4: 1.0 * (1 + pi_t6_t5_rate) * (1 + pi_t5_t4_rate),
                     t3: 1.0 * (1 + pi_t6_t5_rate) * (1 + pi_t5_t4_rate) * (1 + pi_t4_t3_rate), 
                     t2: 1.0 * (1 + pi_t6_t5_rate) * (1 + pi_t5_t4_rate) * (1 + pi_t4_t3_rate) * (1 + pi_t3_t2_rate), 
@@ -1951,7 +1954,7 @@
                 // 2. 런칭 보너스 Tier별 승수(Multiplier) 계산 (T6 기준 1.0, 완만한 배율)
                 const lb_multipliers = {
                     t6: 1.0, // T6 Base (최하위)
-                    t5: 1.0 * (1 + lb_t6_t5_rate_mult), // T6의 150% 증가 = 2.5
+                    t5: 1.0 * (1 + lb_t6_t5_rate_mult), // T6의 500% 증가 = 6.0
                     t4: 1.0 * (1 + lb_t6_t5_rate_mult) * (1 + lb_t5_t4_rate_mult),
                     t3: 1.0 * (1 + lb_t6_t5_rate_mult) * (1 + lb_t5_t4_rate_mult) * (1 + lb_t4_t3_rate_mult), 
                     t2: 1.0 * (1 + lb_t6_t5_rate_mult) * (1 + lb_t5_t4_rate_mult) * (1 + lb_t4_t3_rate_mult) * (1 + lb_t3_t2_rate_mult), 
@@ -2553,119 +2556,123 @@
 
             // Load initial employee data from CSV
             const initialEmployees = [
-                // CSV data loaded from 호랑(프로젝트OQ)_Tier6_20251105.csv (2025-11-05)
+                // CSV data updated from 재직자현황업데이트.csv (2025-11-26)
                 // Tier 6 System: T1-T6 (참여자) + T7 (비참여자, 런칭 보너스 미지급)
-                {id: "SP004", name: "김효정", tier: 5, joinDate: "2022-04-01", salary: 61400000},
-                {id: "SP025", name: "김윤재", tier: 4, joinDate: "2025-07-23", salary: 52300000},
-                {id: "SP028", name: "윤영준", tier: 4, joinDate: "2024-07-15", salary: 68500000},
-                {id: "SP041", name: "황현식", tier: 3, joinDate: "2025-07-23", salary: 106000000},
-                {id: "SP042", name: "최익필", tier: 1, joinDate: "2022-04-01", salary: 136000000},
-                {id: "SP048", name: "유호영", tier: 3, joinDate: "2025-07-23", salary: 119000000},
-                {id: "SP052", name: "모성민", tier: 4, joinDate: "2025-07-23", salary: 49300000},
-                {id: "SP071", name: "송진민", tier: 4, joinDate: "2025-07-23", salary: 81000000},
-                {id: "SP075", name: "강도홍", tier: 3, joinDate: "2022-04-01", salary: 52000000},
-                {id: "SP083", name: "차준영", tier: 3, joinDate: "2022-04-01", salary: 45000000},
-                {id: "SP098", name: "조희선", tier: 2, joinDate: "2022-04-01", salary: 101000000},
-                {id: "SP109", name: "이근수", tier: 4, joinDate: "2025-07-23", salary: 77000000},
-                {id: "SP117", name: "김도연", tier: 3, joinDate: "2025-07-23", salary: 85000000},
-                {id: "SP164", name: "장가람", tier: 1, joinDate: "2022-04-01", salary: 57000000},
-                {id: "SP190", name: "우수진", tier: 3, joinDate: "2022-04-01", salary: 64500000},
-                {id: "SP224", name: "조신우", tier: 3, joinDate: "2022-04-01", salary: 37500000},
-                {id: "SP245", name: "김다솜", tier: 5, joinDate: "2025-01-20", salary: 62300000},
-                {id: "SP249", name: "김수완", tier: 3, joinDate: "2022-04-01", salary: 41000000},
-                {id: "SP252", name: "박태양", tier: 5, joinDate: "2025-07-23", salary: 42000000},
-                {id: "SP264", name: "최규환", tier: 5, joinDate: "2024-10-23", salary: 57000000},
-                {id: "SP267", name: "전현준", tier: 5, joinDate: "2022-04-01", salary: 40000000},
-                {id: "SP298", name: "장지연", tier: 4, joinDate: "2022-04-01", salary: 39800000},
-                {id: "SP299", name: "전수민", tier: 5, joinDate: "2022-04-01", salary: 52000000},
-                {id: "SP313", name: "박상민", tier: 3, joinDate: "2022-04-01", salary: 40500000},
-                {id: "SP328", name: "홍성명", tier: 5, joinDate: "2022-04-01", salary: 36200000},
-                {id: "SP345", name: "오성광", tier: 3, joinDate: "2025-07-23", salary: 47200000},
-                {id: "SP346", name: "유경민", tier: 3, joinDate: "2022-04-18", salary: 48000000},
-                {id: "SP357", name: "김정엽", tier: 3, joinDate: "2022-04-18", salary: 38000000},
-                {id: "SP363", name: "용환민", tier: 5, joinDate: "2022-05-02", salary: 34600000},
-                {id: "SP370", name: "정혜영", tier: 5, joinDate: "2022-05-16", salary: 39000000},
-                {id: "SP371", name: "김상조", tier: 4, joinDate: "2022-05-16", salary: 47600000},
-                {id: "SP380", name: "지혜양", tier: 5, joinDate: "2022-05-30", salary: 40500000},
-                {id: "SP382", name: "정윤주", tier: 5, joinDate: "2025-07-23", salary: 45500000},
-                {id: "SP401", name: "강은희", tier: 5, joinDate: "2022-06-27", salary: 40400000},
-                {id: "SP409", name: "김형찬", tier: 3, joinDate: "2022-07-04", salary: 51000000},
-                {id: "SP418", name: "전혜지", tier: 5, joinDate: "2025-07-23", salary: 41100000},
-                {id: "SP419", name: "이경진B", tier: 5, joinDate: "2025-07-23", salary: 37800000},
-                {id: "SP430", name: "송준호", tier: 4, joinDate: "2025-07-23", salary: 103500000},
-                {id: "SP491", name: "추연채", tier: 5, joinDate: "2024-10-23", salary: 54000000},
-                {id: "SP504", name: "정희연", tier: 5, joinDate: "2025-01-20", salary: 36000000},
-                {id: "SP505", name: "이준호", tier: 5, joinDate: "2025-01-20", salary: 36200000},
-                {id: "SP508", name: "김은희", tier: 5, joinDate: "2023-01-09", salary: 36000000},
-                {id: "SP524", name: "서성철", tier: 4, joinDate: "2023-01-30", salary: 68500000},
-                {id: "SP531", name: "이재청", tier: 6, joinDate: "2023-03-06", salary: 92500000},
-                {id: "SP535", name: "김재기", tier: 4, joinDate: "2025-07-23", salary: 92400000},
-                {id: "SP536", name: "조현기", tier: 3, joinDate: "2023-03-27", salary: 77500000},
-                {id: "SP538", name: "김영하", tier: 4, joinDate: "2023-03-27", salary: 39000000},
-                {id: "SP559", name: "김주연", tier: 3, joinDate: "2023-05-15", salary: 37500000},
-                {id: "SP564", name: "남다위", tier: 5, joinDate: "2023-05-30", salary: 75200000},
-                {id: "SP574", name: "조동주", tier: 5, joinDate: "2023-06-12", salary: 42000000},
-                {id: "SP584", name: "박인환", tier: 1, joinDate: "2023-07-10", salary: 100000000},
-                {id: "SP590", name: "이일규", tier: 5, joinDate: "2025-07-21", salary: 43700000},
-                {id: "SP592", name: "최지연", tier: 4, joinDate: "2023-09-11", salary: 47600000},
-                {id: "SP597", name: "송기현", tier: 5, joinDate: "2024-11-01", salary: 35400000},
-                {id: "SP598", name: "김영은", tier: 5, joinDate: "2023-09-25", salary: 35400000},
-                {id: "SP606", name: "이경민", tier: 5, joinDate: "2023-10-23", salary: 47900000},
-                {id: "SP607", name: "김해현", tier: 5, joinDate: "2023-10-23", salary: 64900000},
-                {id: "SP614", name: "김윤선", tier: 5, joinDate: "2023-10-30", salary: 42500000},
-                {id: "SP625", name: "서미정", tier: 4, joinDate: "2023-11-13", salary: 50500000},
-                {id: "SP631", name: "조상호", tier: 5, joinDate: "2023-11-27", salary: 62500000},
-                {id: "SP638", name: "신지훈", tier: 5, joinDate: "2025-07-23", salary: 42300000},
-                {id: "SP643", name: "기태양", tier: 5, joinDate: "2024-01-02", salary: 35800000},
-                {id: "SP644", name: "최효재", tier: 4, joinDate: "2024-01-02", salary: 50100000},
-                {id: "SP645", name: "임재엽", tier: 5, joinDate: "2024-01-02", salary: 56300000},
-                {id: "SP654", name: "안주현", tier: 6, joinDate: "2024-01-22", salary: 55500000},
-                {id: "SP656", name: "윤민우", tier: 3, joinDate: "2024-01-22", salary: 63500000},
-                {id: "SP665", name: "정경원", tier: 4, joinDate: "2024-03-11", salary: 42000000},
-                {id: "SP668", name: "이재환", tier: 5, joinDate: "2024-03-18", salary: 59900000},
-                {id: "SP669", name: "강진실", tier: 5, joinDate: "2024-03-18", salary: 48000000},
-                {id: "SP671", name: "강동호", tier: 4, joinDate: "2024-04-15", salary: 70500000},
-                {id: "SP672", name: "김수진", tier: 5, joinDate: "2024-04-15", salary: 61300000},
-                {id: "SP675", name: "박정균", tier: 4, joinDate: "2024-04-15", salary: 61700000},
-                {id: "SP676", name: "유창민", tier: 5, joinDate: "2024-04-22", salary: 48000000},
-                {id: "SP677", name: "정주훈", tier: 4, joinDate: "2024-04-29", salary: 84100000},
-                {id: "SP687", name: "윤혜지", tier: 4, joinDate: "2024-05-13", salary: 46000000},
-                {id: "SP690", name: "이정태", tier: 4, joinDate: "2024-05-27", salary: 47000000},
-                {id: "SP693", name: "손영배", tier: 5, joinDate: "2024-06-03", salary: 55000000},
-                {id: "SP695", name: "이성우", tier: 5, joinDate: "2024-06-24", salary: 77500000},
-                {id: "SP699", name: "김민석", tier: 3, joinDate: "2024-07-08", salary: 86000000},
-                {id: "SP700", name: "안창용", tier: 4, joinDate: "2024-07-08", salary: 47500000},
-                {id: "SP704", name: "최희준", tier: 5, joinDate: "2024-07-15", salary: 33900000},
-                {id: "SP705", name: "채종수", tier: 5, joinDate: "2024-07-15", salary: 33900000},
-                {id: "SP706", name: "김수진B", tier: 5, joinDate: "2024-07-15", salary: 33900000},
-                {id: "SP707", name: "진영훈", tier: 5, joinDate: "2025-01-20", salary: 33900000},
-                {id: "SP710", name: "김선홍", tier: 5, joinDate: "2025-07-23", salary: 35500000},
-                {id: "SP711", name: "이현민", tier: 5, joinDate: "2024-07-22", salary: 86100000},
-                {id: "SP720", name: "박연희", tier: 5, joinDate: "2025-07-23", salary: 37000000},
-                {id: "SP722", name: "노형원", tier: 5, joinDate: "2024-09-09", salary: 53000000},
-                {id: "SP728", name: "김주형", tier: 5, joinDate: "2024-10-28", salary: 39000000},
-                {id: "SP730", name: "박형우", tier: 5, joinDate: "2024-11-04", salary: 59000000},
-                {id: "SP731", name: "이재형", tier: 5, joinDate: "2024-11-04", salary: 55008000},
-                {id: "SP735", name: "이욱선", tier: 4, joinDate: "2024-12-09", salary: 71000000},
-                {id: "SP737", name: "윤형기", tier: 5, joinDate: "2024-12-16", salary: 67500000},
-                {id: "SP739", name: "오성혁", tier: 5, joinDate: "2025-01-06", salary: 33000000},
-                {id: "SP744", name: "이석호", tier: 3, joinDate: "2025-03-04", salary: 130000000},
-                {id: "SP754", name: "장수민", tier: 2, joinDate: "2025-07-23", salary: 140000000},
-                {id: "SP755", name: "손효식", tier: 5, joinDate: "2025-05-26", salary: 30000000},
-                {id: "SP756", name: "이은서", tier: 5, joinDate: "2025-07-23", salary: 43000000},
-                {id: "SP764", name: "이호진", tier: 5, joinDate: "2025-07-21", salary: 42000000},
-                {id: "SP765", name: "박성원", tier: 5, joinDate: "2025-07-21", salary: 62500000},
-                {id: "SP766", name: "조유빈", tier: 5, joinDate: "2025-07-28", salary: 70000000},
-                {id: "SP767", name: "박준상", tier: 5, joinDate: "2025-07-28", salary: 40000000},
-                {id: "SP768", name: "오지현", tier: 5, joinDate: "2025-08-04", salary: 44000000},
-                {id: "SP769", name: "김유림", tier: 5, joinDate: "2025-08-11", salary: 37000000},
-                {id: "SP770", name: "최상훈", tier: 4, joinDate: "2025-08-18", salary: 80000000},
-                {id: "SP771", name: "최성은", tier: 5, joinDate: "2025-09-08", salary: 74000000},
-                {id: "SP772", name: "김희애", tier: 5, joinDate: "2025-10-13", salary: 71000000},
-                {id: "SP773", name: "김민아", tier: 5, joinDate: "2025-10-13", salary: 60000000},
-                {id: "SP774", name: "이주연", tier: 5, joinDate: "2025-10-13", salary: 42000000},
-                {id: "SP775", name: "유진웅", tier: 5, joinDate: "2025-10-20", salary: 50000000},
-                {id: "SP776", name: "정다슬", tier: 5, joinDate: "2025-10-20", salary: 38000000}
+                {id: "SP042", name: "최익필", tier: 1, joinDate: "2022-10-04", salary: 136000000, isNew: false},
+                {id: "SP098", name: "조희선", tier: 1, joinDate: "2022-10-04", salary: 101000000, isNew: false},
+                {id: "SP754", name: "장수민", tier: 1, joinDate: "2025-07-22", salary: 140000000, isNew: false},
+                {id: "SP164", name: "장가람", tier: 2, joinDate: "2021-09-13", salary: 57000000, isNew: false},
+                {id: "SP249", name: "김수완", tier: 2, joinDate: "2021-11-08", salary: 41000000, isNew: false},
+                {id: "SP584", name: "박인환", tier: 2, joinDate: "2023-07-10", salary: 100000000, isNew: false},
+                {id: "SP075", name: "강도홍", tier: 3, joinDate: "2021-09-13", salary: 52000000, isNew: false},
+                {id: "SP190", name: "우수진", tier: 3, joinDate: "2021-09-13", salary: 64500000, isNew: false},
+                {id: "SP313", name: "박상민", tier: 3, joinDate: "2022-02-21", salary: 40500000, isNew: false},
+                {id: "SP346", name: "유경민", tier: 3, joinDate: "2022-04-18", salary: 48000000, isNew: false},
+                {id: "SP409", name: "김형찬", tier: 3, joinDate: "2022-07-04", salary: 51000000, isNew: false},
+                {id: "SP536", name: "조현기", tier: 3, joinDate: "2023-03-27", salary: 77500000, isNew: false},
+                {id: "SP538", name: "김영하", tier: 3, joinDate: "2023-03-27", salary: 39000000, isNew: false},
+                {id: "SP559", name: "김주연", tier: 3, joinDate: "2023-05-15", salary: 37500000, isNew: false},
+                {id: "SP675", name: "박정균", tier: 3, joinDate: "2024-04-15", salary: 61700000, isNew: false},
+                {id: "SP699", name: "김민석", tier: 3, joinDate: "2024-06-24", salary: 86000000, isNew: false},
+                {id: "SP028", name: "윤영준", tier: 3, joinDate: "2024-07-15", salary: 68500000, isNew: false},
+                {id: "SP744", name: "이석호", tier: 3, joinDate: "2025-03-04", salary: 130000000, isNew: false},
+                {id: "SP048", name: "유호영", tier: 3, joinDate: "2025-07-22", salary: 119000000, isNew: false},
+                {id: "SP117", name: "김도연", tier: 3, joinDate: "2025-07-22", salary: 85000000, isNew: false},
+                {id: "SP041", name: "황현식", tier: 3, joinDate: "2025-07-22", salary: 106000000, isNew: false},
+                {id: "SP770", name: "최상훈", tier: 3, joinDate: "2025-08-18", salary: 80000000, isNew: false},
+                {id: "SP224", name: "조신우", tier: 4, joinDate: "2021-09-13", salary: 37500000, isNew: false},
+                {id: "SP083", name: "차준영", tier: 4, joinDate: "2021-10-08", salary: 45000000, isNew: false},
+                {id: "SP267", name: "전현준", tier: 4, joinDate: "2021-12-06", salary: 40000000, isNew: false},
+                {id: "SP298", name: "장지연", tier: 4, joinDate: "2022-01-03", salary: 39800000, isNew: false},
+                {id: "SP299", name: "전수민", tier: 4, joinDate: "2022-01-10", salary: 52000000, isNew: false},
+                {id: "SP357", name: "김정엽", tier: 4, joinDate: "2022-04-18", salary: 38000000, isNew: false},
+                {id: "SP371", name: "김상조", tier: 4, joinDate: "2022-05-16", salary: 47600000, isNew: false},
+                {id: "SP380", name: "지혜양", tier: 4, joinDate: "2022-05-30", salary: 40500000, isNew: false},
+                {id: "SP508", name: "김은희", tier: 4, joinDate: "2023-01-09", salary: 36000000, isNew: false},
+                {id: "SP564", name: "남다위", tier: 4, joinDate: "2023-05-30", salary: 75200000, isNew: false},
+                {id: "SP592", name: "최지연", tier: 4, joinDate: "2023-09-11", salary: 47600000, isNew: false},
+                {id: "SP631", name: "조상호", tier: 4, joinDate: "2023-11-27", salary: 62500000, isNew: false},
+                {id: "SP656", name: "윤민우", tier: 4, joinDate: "2024-01-22", salary: 63500000, isNew: false},
+                {id: "SP690", name: "이정태", tier: 4, joinDate: "2024-05-27", salary: 47000000, isNew: false},
+                {id: "SP700", name: "안창용", tier: 4, joinDate: "2024-06-24", salary: 47500000, isNew: false},
+                {id: "SP764", name: "이호진", tier: 4, joinDate: "2025-07-21", salary: 42000000, isNew: false},
+                {id: "SP766", name: "조유빈", tier: 4, joinDate: "2025-07-22", salary: 70000000, isNew: false},
+                {id: "SP052", name: "모성민", tier: 4, joinDate: "2025-07-22", salary: 49300000, isNew: false},
+                {id: "SP109", name: "이근수", tier: 4, joinDate: "2025-07-22", salary: 77000000, isNew: false},
+                {id: "SP071", name: "송진민", tier: 4, joinDate: "2025-07-22", salary: 81000000, isNew: false},
+                {id: "SP535", name: "김재기", tier: 4, joinDate: "2025-07-22", salary: 92400000, isNew: false},
+                {id: "SP720", name: "박연희", tier: 4, joinDate: "2025-07-22", salary: 37000000, isNew: false},
+                {id: "SP025", name: "김윤재", tier: 4, joinDate: "2025-07-22", salary: 52300000, isNew: false},
+                {id: "SP430", name: "송준호", tier: 4, joinDate: "2025-07-22", salary: 103500000, isNew: false},
+                {id: "SP418", name: "전혜지", tier: 4, joinDate: "2025-07-22", salary: 41100000, isNew: false},
+                {id: "SP345", name: "오성광", tier: 4, joinDate: "2025-07-22", salary: 47200000, isNew: false},
+                {id: "SP710", name: "김선홍", tier: 4, joinDate: "2025-07-22", salary: 35500000, isNew: false},
+                {id: "SP771", name: "최성은", tier: 4, joinDate: "2025-09-08", salary: 74000000, isNew: false},
+                {id: "SP004", name: "김효정", tier: 5, joinDate: "2021-11-08", salary: 61400000, isNew: false},
+                {id: "SP328", name: "홍성명", tier: 5, joinDate: "2022-03-07", salary: 36200000, isNew: false},
+                {id: "SP363", name: "용환민", tier: 5, joinDate: "2022-05-02", salary: 34600000, isNew: false},
+                {id: "SP370", name: "정혜영", tier: 5, joinDate: "2022-05-16", salary: 39000000, isNew: false},
+                {id: "SP401", name: "강은희", tier: 5, joinDate: "2022-06-27", salary: 40400000, isNew: false},
+                {id: "SP574", name: "조동주", tier: 5, joinDate: "2023-06-12", salary: 42000000, isNew: false},
+                {id: "SP598", name: "김영은", tier: 5, joinDate: "2023-09-25", salary: 35400000, isNew: false},
+                {id: "SP607", name: "김해현", tier: 5, joinDate: "2023-10-23", salary: 64900000, isNew: false},
+                {id: "SP606", name: "이경민", tier: 5, joinDate: "2023-10-23", salary: 47900000, isNew: false},
+                {id: "SP614", name: "김윤선", tier: 5, joinDate: "2023-10-30", salary: 42500000, isNew: false},
+                {id: "SP625", name: "서미정", tier: 5, joinDate: "2023-11-13", salary: 50500000, isNew: false},
+                {id: "SP643", name: "기태양", tier: 5, joinDate: "2024-01-02", salary: 35800000, isNew: false},
+                {id: "SP645", name: "임재엽", tier: 5, joinDate: "2024-01-02", salary: 56300000, isNew: false},
+                {id: "SP665", name: "정경원", tier: 5, joinDate: "2024-03-11", salary: 42000000, isNew: false},
+                {id: "SP668", name: "이재환", tier: 5, joinDate: "2024-03-18", salary: 59900000, isNew: false},
+                {id: "SP669", name: "강진실", tier: 5, joinDate: "2024-03-18", salary: 48000000, isNew: false},
+                {id: "SP671", name: "강동호", tier: 5, joinDate: "2024-04-15", salary: 70500000, isNew: false},
+                {id: "SP676", name: "유창민", tier: 5, joinDate: "2024-04-22", salary: 48000000, isNew: false},
+                {id: "SP677", name: "정주훈", tier: 5, joinDate: "2024-04-29", salary: 84100000, isNew: false},
+                {id: "SP687", name: "윤혜지", tier: 5, joinDate: "2024-05-13", salary: 46000000, isNew: false},
+                {id: "SP693", name: "손영배", tier: 5, joinDate: "2024-06-03", salary: 55000000, isNew: false},
+                {id: "SP695", name: "이성우", tier: 5, joinDate: "2024-06-24", salary: 77500000, isNew: false},
+                {id: "SP705", name: "채종수", tier: 5, joinDate: "2024-07-15", salary: 33900000, isNew: false},
+                {id: "SP706", name: "김수진B", tier: 5, joinDate: "2024-07-15", salary: 33900000, isNew: false},
+                {id: "SP672", name: "김수진", tier: 5, joinDate: "2024-07-15", salary: 61300000, isNew: false},
+                {id: "SP711", name: "이현민", tier: 5, joinDate: "2024-07-22", salary: 86100000, isNew: false},
+                {id: "SP722", name: "노형원", tier: 5, joinDate: "2024-09-09", salary: 53000000, isNew: false},
+                {id: "SP491", name: "추연채", tier: 5, joinDate: "2024-10-23", salary: 54000000, isNew: false},
+                {id: "SP264", name: "최규환", tier: 5, joinDate: "2024-10-23", salary: 57000000, isNew: false},
+                {id: "SP728", name: "김주형", tier: 5, joinDate: "2024-10-28", salary: 39000000, isNew: false},
+                {id: "SP597", name: "송기현", tier: 5, joinDate: "2024-11-01", salary: 35400000, isNew: false},
+                {id: "SP730", name: "박형우", tier: 5, joinDate: "2024-11-04", salary: 59000000, isNew: false},
+                {id: "SP731", name: "이재형", tier: 5, joinDate: "2024-11-04", salary: 55008000, isNew: false},
+                {id: "SP735", name: "이욱선", tier: 5, joinDate: "2024-12-09", salary: 71000000, isNew: false},
+                {id: "SP737", name: "윤형기", tier: 5, joinDate: "2024-12-16", salary: 67500000, isNew: false},
+                {id: "SP739", name: "오성혁", tier: 5, joinDate: "2025-01-06", salary: 33000000, isNew: false},
+                {id: "SP707", name: "진영훈", tier: 5, joinDate: "2025-01-20", salary: 33900000, isNew: false},
+                {id: "SP505", name: "이준호", tier: 5, joinDate: "2025-01-20", salary: 36200000, isNew: false},
+                {id: "SP245", name: "김다솜", tier: 5, joinDate: "2025-01-20", salary: 62300000, isNew: false},
+                {id: "SP504", name: "정희연", tier: 5, joinDate: "2025-01-20", salary: 36000000, isNew: false},
+                {id: "SP755", name: "손효식", tier: 5, joinDate: "2025-05-26", salary: 30000000, isNew: false},
+                {id: "SP590", name: "이일규", tier: 5, joinDate: "2025-07-21", salary: 43700000, isNew: false},
+                {id: "SP765", name: "박성원", tier: 5, joinDate: "2025-07-21", salary: 62500000, isNew: false},
+                {id: "SP252", name: "박태양", tier: 5, joinDate: "2025-07-22", salary: 42000000, isNew: false},
+                {id: "SP382", name: "정윤주", tier: 5, joinDate: "2025-07-22", salary: 45500000, isNew: false},
+                {id: "SP756", name: "이은서", tier: 5, joinDate: "2025-07-22", salary: 43000000, isNew: false},
+                {id: "SP419", name: "이경진B", tier: 5, joinDate: "2025-07-22", salary: 37800000, isNew: false},
+                {id: "SP638", name: "신지훈", tier: 5, joinDate: "2025-07-22", salary: 42300000, isNew: false},
+                {id: "SP768", name: "오지현", tier: 5, joinDate: "2025-08-04", salary: 44000000, isNew: false},
+                {id: "SP769", name: "김유림", tier: 5, joinDate: "2025-08-11", salary: 37000000, isNew: false},
+                {id: "SP772", name: "김희애", tier: 5, joinDate: "2025-09-01", salary: 71000000, isNew: false},
+                {id: "SP775", name: "유진웅", tier: 5, joinDate: "2025-10-13", salary: 50000000, isNew: false},
+                {id: "SP774", name: "이주연", tier: 5, joinDate: "2025-10-13", salary: 42000000, isNew: false},
+                {id: "SP773", name: "김민아", tier: 5, joinDate: "2025-10-13", salary: 60000000, isNew: false},
+                {id: "SP776", name: "정다슬", tier: 5, joinDate: "2025-10-20", salary: 38000000, isNew: false},
+                {id: "SP777", name: "김보영", tier: 5, joinDate: "2025-10-27", salary: 50000000, isNew: true},
+                {id: "SP778", name: "조아영", tier: 5, joinDate: "2025-10-27", salary: 43000000, isNew: true},
+                {id: "SP779", name: "최준형", tier: 5, joinDate: "2025-11-10", salary: 34000000, isNew: true},
+                {id: "SP780", name: "황태준", tier: 5, joinDate: "2025-11-17", salary: 54000000, isNew: true},
+                {id: "SP781", name: "홍유진", tier: 5, joinDate: "2025-11-17", salary: 30000000, isNew: true},
+                {id: "SP782", name: "김영일", tier: 5, joinDate: "2025-11-17", salary: 69000000, isNew: true},
+                {id: "SP783", name: "김대철", tier: 5, joinDate: "2025-11-17", salary: 70100000, isNew: true},
+                {id: "SP784", name: "문혜주", tier: 5, joinDate: "2025-11-24", salary: 33000000, isNew: true},
+                {id: "SP785", name: "박준수", tier: 5, joinDate: "2025-11-25", salary: 35000000, isNew: true},
+                {id: "SP531", name: "이재청", tier: 6, joinDate: "2023-03-06", salary: 92500000, isNew: false}
             ];
 
             function calculateLevel(joinDate, baseDate) {
@@ -3031,10 +3038,13 @@
                     totalIncentive += incentive;
                     totalBonus += bonus;
 
+                    // 새로 추가된 직원인 경우 이름 컬럼에 노란색 배경 적용
+                    const nameStyle = emp.isNew ? 'background-color: #fef3c7;' : '';
+                    
                     tr.innerHTML = `
                         <td class="text-center">${displayIndex + 1}</td>
                         <td class="text-center">${emp.id}</td>
-                        <td class="text-center">${emp.name}</td>
+                        <td class="text-center" style="${nameStyle}">${emp.name}</td>
                         <td class="text-center">
                     <select class="input-base" onchange="updateEmployeeTier(${originalIndex}, this.value)">
                         ${[1,2,3,4,5,6,7].map(t => 
@@ -3372,6 +3382,46 @@
                 };
                 
                 reader.readAsText(file);
+            });
+
+            // CSV 내보내기 기능
+            document.getElementById('exportCSV').addEventListener('click', () => {
+                if (employees.length === 0) {
+                    alert('내보낼 직원 데이터가 없습니다.');
+                    return;
+                }
+
+                // CSV 헤더
+                let csvContent = '이름,Tier,OQ 합류일,연봉,사번,신규 추가 여부\n';
+                
+                // 데이터 행 추가 (Tier 순으로 정렬)
+                const sortedEmployees = [...employees].sort((a, b) => {
+                    if (a.tier !== b.tier) return a.tier - b.tier;
+                    return a.name.localeCompare(b.name);
+                });
+                
+                sortedEmployees.forEach(emp => {
+                    const joinDate = emp.joinDate;
+                    const isNewFlag = emp.isNew ? '신규' : '';
+                    csvContent += `${emp.name},${emp.tier},${joinDate},${emp.salary},${emp.id},${isNewFlag}\n`;
+                });
+
+                // Blob 생성 및 다운로드
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', `재직자현황_${dateStr}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert(`${employees.length}명의 직원 데이터를 CSV 파일로 내보냈습니다.`);
             });
 
             // Initialize table with CSV data
