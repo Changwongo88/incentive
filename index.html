@@ -6,6 +6,8 @@
     <title>인센티브 시뮬레이터 (v9) - Tier 6 System</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <!-- Inter 폰트 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,6 +43,20 @@
             margin-bottom: 1rem; /* mb-4 */
             border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
             padding-bottom: 0.5rem; /* pb-2 */
+        }
+        
+        /* 인사이트 카드 호버 효과 */
+        .insight-card {
+            transition: all 0.3s ease;
+        }
+        .insight-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        /* 모달 스타일 */
+        #insightModal {
+            backdrop-filter: blur(4px);
         }
         
         /* 표준 입력 필드 스타일 */
@@ -282,12 +298,16 @@
             <div class="border-b border-gray-200">
                 <nav class="flex -mb-px" aria-label="Tabs">
                     <button id="tab1-button" 
-                            class="tab-button w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer transition-colors duration-200 border-indigo-500 text-indigo-600">
+                            class="tab-button w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer transition-colors duration-200 border-indigo-500 text-indigo-600">
                         인센티브 시뮬레이터 (Step 1-3)
                     </button>
                     <button id="tab2-button"
-                            class="tab-button w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer transition-colors duration-200 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            class="tab-button w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer transition-colors duration-200 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                         슈퍼캣 인원 관리
+                    </button>
+                    <button id="tab3-button"
+                            class="tab-button w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer transition-colors duration-200 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        HR 인사이트
                     </button>
                 </nav>
             </div>
@@ -851,22 +871,22 @@
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <label for="lb_t5_t4_rate" class="block text-sm font-medium text-gray-700 w-24">T5 → T4</label>
-                                    <input type="number" id="lb_t5_t4_rate" value="15" class="input-base rate-input">
+                                    <input type="number" id="lb_t5_t4_rate" value="20" class="input-base rate-input">
                                     <span class="text-sm text-gray-600">% 증가</span>
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <label for="lb_t4_t3_rate" class="block text-sm font-medium text-gray-700 w-24">T4 → T3</label>
-                                    <input type="number" id="lb_t4_t3_rate" value="20" class="input-base rate-input">
+                                    <input type="number" id="lb_t4_t3_rate" value="30" class="input-base rate-input">
                                     <span class="text-sm text-gray-600">% 증가</span>
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <label for="lb_t3_t2_rate" class="block text-sm font-medium text-gray-700 w-24">T3 → T2</label>
-                                    <input type="number" id="lb_t3_t2_rate" value="50" class="input-base rate-input">
+                                    <input type="number" id="lb_t3_t2_rate" value="40" class="input-base rate-input">
                                     <span class="text-sm text-gray-600">% 증가</span>
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <label for="lb_t2_t1_rate" class="block text-sm font-medium text-gray-700 w-24">T2 → T1</label>
-                                    <input type="number" id="lb_t2_t1_rate" value="100" class="input-base rate-input">
+                                    <input type="number" id="lb_t2_t1_rate" value="50" class="input-base rate-input">
                                     <span class="text-sm text-gray-600">% 증가</span>
                                 </div>
                             </div>
@@ -1296,7 +1316,7 @@
                         <h3 class="section-title">인원 목록</h3>
                         
                         <!-- 검색 및 정렬 옵션 -->
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                             <div>
                                 <label for="searchName" class="block text-sm font-medium text-gray-700 mb-1">이름 검색</label>
                                 <input type="text" id="searchName" class="input-base" placeholder="이름을 입력하세요">
@@ -1309,14 +1329,40 @@
                                     <option value="2">T2만 보기</option>
                                     <option value="3">T3만 보기</option>
                                     <option value="4">T4만 보기</option>
+                                    <option value="5">T5만 보기</option>
+                                    <option value="6">T6만 보기</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="teamFilter" class="block text-sm font-medium text-gray-700 mb-1">팀 필터</label>
+                                <select id="teamFilter" class="input-base">
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="partFilter" class="block text-sm font-medium text-gray-700 mb-1">파트 필터</label>
+                                <select id="partFilter" class="input-base">
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="positionFilter" class="block text-sm font-medium text-gray-700 mb-1">직책 필터</label>
+                                <select id="positionFilter" class="input-base">
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="detailRoleFilter" class="block text-sm font-medium text-gray-700 mb-1">상세직군 필터</label>
+                                <select id="detailRoleFilter" class="input-base">
+                                    <option value="all">전체</option>
                                 </select>
                             </div>
                             <div>
                                 <label for="sortOrder" class="block text-sm font-medium text-gray-700 mb-1">Tier 정렬</label>
                                 <select id="sortOrder" class="input-base">
                                     <option value="none">정렬 안함</option>
-                                    <option value="asc">오름차순 (T1 → T4)</option>
-                                    <option value="desc">내림차순 (T4 → T1)</option>
+                                    <option value="asc">오름차순 (T1 → T6)</option>
+                                    <option value="desc">내림차순 (T6 → T1)</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
@@ -1338,6 +1384,10 @@
                                         <th class="text-center" rowspan="2">순번</th>
                                         <th class="text-center" rowspan="2">사번</th>
                                         <th class="text-center" rowspan="2">이름</th>
+                                        <th class="text-center" rowspan="2">팀</th>
+                                        <th class="text-center" rowspan="2">파트</th>
+                                        <th class="text-center" rowspan="2">직책</th>
+                                        <th class="text-center" rowspan="2">상세직군</th>
                                         <th class="text-center" rowspan="2">Tier</th>
                                         <th class="text-center" rowspan="2">프로젝트 합류일</th>
                                         <th class="text-center" rowspan="2">Level</th>
@@ -1361,7 +1411,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-gray-100">
-                                        <td colspan="6" class="text-right font-bold">합계:</td>
+                                        <td colspan="10" class="text-right font-bold">합계:</td>
                                         <td class="text-right font-bold" id="total_salary">-</td>
                                         <td class="text-right font-bold" id="total_monthly">-</td>
                                         <td class="text-right font-bold" id="total_incentive">-</td>
@@ -1379,6 +1429,602 @@
                         
                         <div class="mt-4 text-sm text-gray-600">
                             총 <span id="displayedCount" class="font-bold text-indigo-600">0</span>명 표시 중
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3 Content: HR 인사이트 -->
+        <div id="tab3-content" class="hidden">
+            <!-- 상단 헤더 -->
+            <div class="bg-white border-b border-gray-200 shadow-sm mb-6">
+                <div class="px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800">HR 인사이트</h2>
+                            <p class="text-sm text-gray-500 mt-1">인사 데이터 분석 대시보드</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <select id="insightSegment" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                <option value="team">팀</option>
+                                <option value="part">파트</option>
+                                <option value="position">직책</option>
+                            </select>
+                            <button id="updateAllInsights" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm">
+                                전체 업데이트
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-8 pb-8">
+                <!-- 등급 기준 안내 -->
+                <div class="mb-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <div class="flex items-center justify-between text-xs mb-2">
+                        <span class="font-medium text-gray-600">📊 점수 등급 기준 (100점 만점):</span>
+                        <div class="flex gap-4">
+                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded">80점 이상: 우수</span>
+                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded">60-79점: 양호</span>
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded">40-59점: 주의</span>
+                            <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded">20-39점: 경고</span>
+                            <span class="px-2 py-1 bg-red-100 text-red-700 rounded">20점 미만: 심각</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500 space-y-1">
+                        <p>• <strong>연봉 효율성:</strong> Tier 5-6인데 평균 연봉보다 높은 인원 비율 기반 (비효율 0% = 100점, 50% = 0점)</p>
+                        <p>• <strong>경력-역량 매칭:</strong> 24개월 이상 근무했는데 Tier 5-6인 인원 비율 기반 (미스매치 0% = 100점, 40% = 0점)</p>
+                        <p>• <strong>성장 잠재력 / 핵심 인재:</strong> 팀/파트별 1순위만 표시 (종합 점수에 미포함, 순위 비교용)</p>
+                    </div>
+                </div>
+
+                <!-- 조직 건강도 요약 -->
+                <div class="mb-8">
+                    <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-6">
+                                <div class="w-28 h-28 relative">
+                                    <canvas id="healthGaugeChart" width="100" height="100"></canvas>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">조직 건강도 종합 점수</p>
+                                    <div class="flex items-baseline gap-2">
+                                        <p class="text-5xl font-bold" id="overallHealthScore">-</p>
+                                        <span class="text-lg text-gray-400">/100</span>
+                                        <span id="overallHealthGrade" class="ml-2 px-3 py-1 text-sm font-semibold rounded-full">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 개별 지표 카드 그리드 -->
+                        <div class="grid grid-cols-5 gap-4">
+                            <div id="tierDistributionCard" class="p-4 rounded-xl border-2 transition-all">
+                                <p class="text-xs text-gray-500 mb-1">Tier 분포</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-2xl font-bold" id="tierDistributionScore">-</span>
+                                    <span class="text-xs text-gray-400">/100</span>
+                                </div>
+                                <span id="tierDistributionGrade" class="text-xs font-medium px-2 py-0.5 rounded mt-1 inline-block">-</span>
+                            </div>
+                            <div id="salaryEfficiencyCard" class="p-4 rounded-xl border-2 transition-all">
+                                <p class="text-xs text-gray-500 mb-1">연봉 효율성</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-2xl font-bold" id="salaryEfficiencyScore">-</span>
+                                    <span class="text-xs text-gray-400">/100</span>
+                                </div>
+                                <span id="salaryEfficiencyGrade" class="text-xs font-medium px-2 py-0.5 rounded mt-1 inline-block">-</span>
+                                <p class="text-xs text-gray-400 mt-1" id="salaryEfficiencyDetail">-</p>
+                            </div>
+                            <div id="growthPotentialCard" class="p-4 rounded-xl border-2 transition-all bg-purple-50 border-purple-200">
+                                <p class="text-xs text-gray-500 mb-1">성장 잠재력 1순위</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-lg font-bold text-purple-700" id="growthPotentialScore">-</span>
+                                </div>
+                                <span id="growthPotentialGrade" class="text-xs font-medium px-2 py-0.5 rounded mt-1 inline-block bg-purple-100 text-purple-700">순위 비교</span>
+                            </div>
+                            <div id="experienceMatchCard" class="p-4 rounded-xl border-2 transition-all">
+                                <p class="text-xs text-gray-500 mb-1">경력-역량 매칭</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-2xl font-bold" id="experienceMatchScore">-</span>
+                                    <span class="text-xs text-gray-400">/100</span>
+                                </div>
+                                <span id="experienceMatchGrade" class="text-xs font-medium px-2 py-0.5 rounded mt-1 inline-block">-</span>
+                                <p class="text-xs text-gray-400 mt-1" id="experienceMatchDetail">-</p>
+                            </div>
+                            <div id="keyTalentCard" class="p-4 rounded-xl border-2 transition-all bg-orange-50 border-orange-200">
+                                <p class="text-xs text-gray-500 mb-1">핵심 인재 1순위</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-lg font-bold text-orange-700" id="keyTalentScore">-</span>
+                                </div>
+                                <span id="keyTalentGrade" class="text-xs font-medium px-2 py-0.5 rounded mt-1 inline-block bg-orange-100 text-orange-700">순위 비교</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert 요약 -->
+                <div id="alertSummarySection" class="mb-8 bg-red-50 border border-red-200 rounded-xl p-4 hidden">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">⚠️</span>
+                        <div id="alertSummary" class="flex-1">
+                            <p class="font-semibold text-red-900">주요 Alert 로딩 중...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 인사이트 카드 그리드 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="insightCardsGrid">
+                    <!-- 카드들은 JavaScript로 동적 생성 -->
+                </div>
+            </div>
+
+            <!-- 모달 -->
+            <div id="insightModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4" style="display: none;">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                    <!-- 모달 헤더 -->
+                    <div class="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between z-10 shadow-sm">
+                        <div>
+                            <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">인사이트 분석</h2>
+                            <p id="modalSubtitle" class="text-sm text-gray-500 mt-1">상세 분석 및 데이터</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button id="updateModalInsight" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                                분석 업데이트
+                            </button>
+                            <button onclick="closeInsightModal()" class="w-10 h-10 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+                                <span class="text-2xl text-gray-500">×</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 모달 콘텐츠 -->
+                    <div id="modalContent" class="p-8">
+                        <!-- 콘텐츠는 JavaScript로 동적 로드 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 인사이트 콘텐츠 (모달 내부에서 사용) -->
+    <div id="insight-content-wrapper" style="display: none;">
+
+                        <!-- 연봉-능력 괴리 분석 탭 (모달에서 사용) -->
+                        <div id="insight-capability" class="insight-tab-content hidden">
+                            <h4 class="section-title">Segment별 연봉-능력 괴리 분석</h4>
+                            
+                            <!-- Segment 선택 드롭다운 -->
+                            <div class="mb-4 flex items-center gap-4">
+                                <label for="capabilitySegmentSelect" class="text-sm font-medium text-gray-700">분석 기준:</label>
+                                <select id="capabilitySegmentSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                    <option value="team">팀</option>
+                                    <option value="part">파트</option>
+                                    <option value="position">직책</option>
+                                </select>
+                                <label for="capabilityDetailSelect" class="text-sm font-medium text-gray-700 ml-4">상세 선택:</label>
+                                <select id="capabilityDetailSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                    <option value="">전체</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-blue-900 mb-2">📊 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-blue-800 space-y-2">
+                                    <p><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>Tier 가중치:</strong> T1=6점, T2=5점, T3=4점, T4=3점, T5=2점, T6=1점</li>
+                                        <li><strong>Tier 가중 평균:</strong> (각 직원의 Tier 가중치 합계) ÷ 인원수</li>
+                                        <li><strong>역량 점수:</strong> (평균 연봉 × Tier 가중 평균) ÷ 1,000,000 (백만원 단위 정규화)</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>역량 점수가 높을수록</strong> 해당 Segment의 역량이 높고 연봉 대비 성과가 우수함을 의미합니다.</li>
+                                        <li><strong>Tier 가중 평균</strong>이 높으면 고Tier 인원이 많아 역량이 집중되어 있음을 의미합니다.</li>
+                                        <li>막대 그래프는 평균 연봉과 역량 점수를 비교하여 보여줍니다.</li>
+                                        <li>파이 차트는 선택된 Segment의 Tier 분포를 시각화합니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-white p-4 rounded-lg border" style="height: 300px;">
+                                    <canvas id="capabilityBarChart"></canvas>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border" style="height: 300px;">
+                                    <canvas id="capabilityPieChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <table class="min-w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="text-left p-2 cursor-pointer hover:bg-gray-200 transition-colors" data-sort="rank" data-order="asc">
+                                                순위 <span class="sort-indicator">↕</span>
+                                            </th>
+                                            <th class="text-left p-2 cursor-pointer hover:bg-gray-200 transition-colors" data-sort="segment" data-order="asc">
+                                                Segment <span class="sort-indicator">↕</span>
+                                            </th>
+                                            <th class="text-right p-2 cursor-pointer hover:bg-gray-200 transition-colors" data-sort="salary" data-order="asc">
+                                                평균 연봉 <span class="sort-indicator">↕</span>
+                                            </th>
+                                            <th class="text-right p-2 cursor-pointer hover:bg-gray-200 transition-colors" data-sort="tier" data-order="asc">
+                                                Tier 가중 평균 <span class="sort-indicator">↕</span>
+                                            </th>
+                                            <th class="text-right p-2 cursor-pointer hover:bg-gray-200 transition-colors" data-sort="score" data-order="desc">
+                                                역량 점수 <span class="sort-indicator">↓</span>
+                                            </th>
+                                            <th class="text-right p-2 cursor-pointer hover:bg-gray-200 transition-colors" data-sort="count" data-order="asc">
+                                                인원수 <span class="sort-indicator">↕</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="capabilityTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 리더 능력 취약도 분석 탭 -->
+                        <div id="insight-mismatch" class="insight-tab-content hidden">
+                            <h4 class="section-title">리더 능력 취약도 분석</h4>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-red-900 mb-2">⚠️ 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-red-800 space-y-2">
+                                    <p><strong>분석 목적:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li>리더, 파트장, AD, TD 등 직책자들의 Tier 적정성을 점검합니다.</li>
+                                        <li>직책자인데 Tier가 낮은(T4-T6) 인원이 집중된 팀/파트를 우선순위로 진단합니다.</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>분석 기준:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>심각 (T5-T6):</strong> 직책 역할 수행에 역량 부족 우려가 높음</li>
+                                        <li><strong>주의 (T4):</strong> 역량 강화 또는 모니터링이 필요함</li>
+                                        <li><strong>정상 (T1-T3):</strong> 직책 역할에 적합한 역량 보유</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>그래프 해석:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li>가장 문제가 심각한 팀/파트 순으로 정렬됩니다.</li>
+                                        <li><strong>빨간색:</strong> Tier 5-6 직책자 (심각)</li>
+                                        <li><strong>노란색:</strong> Tier 4 직책자 (주의)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 350px;">
+                                <canvas id="mismatchHeatmapChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="text-sm font-semibold mb-2">📋 팀/파트별 문제 직책자 상세</div>
+                                <div id="mismatchAlertList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                            </div>
+                        </div>
+
+                        <!-- 역량 집중도 탭 -->
+                        <div id="insight-concentration" class="insight-tab-content hidden">
+                            <h4 class="section-title">역량 집중도 분석</h4>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-yellow-900 mb-2">📊 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-yellow-800 space-y-2">
+                                    <p><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>T1-T3 비율:</strong> (T1 인원수 + T2 인원수 + T3 인원수) ÷ 전체 인원수 × 100</li>
+                                        <li><strong>T4-T6 비율:</strong> (T4 인원수 + T5 인원수 + T6 인원수) ÷ 전체 인원수 × 100</li>
+                                        <li><strong>표준편차:</strong> 각 Tier별 인원수의 분산을 계산하여 역량 집중도를 측정</li>
+                                        <li><strong>변동계수:</strong> 표준편차 ÷ 평균 (집중도가 높을수록 값이 큼)</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>레이더 차트의 숫자</strong>는 각 Tier(T1~T6)별 인원수를 나타냅니다.</li>
+                                        <li>예: "4"는 해당 Segment에 T1 인원이 4명, "6"은 T2 인원이 6명을 의미합니다.</li>
+                                        <li><strong>T1-T3 비율이 50% 이상</strong>이면 역량이 과도하게 집중되어 있어 리스크 관리가 필요합니다.</li>
+                                        <li><strong>T1-T3 비율이 15% 미만</strong>이면 역량 부족으로 인한 업무 과부하 위험이 있습니다.</li>
+                                        <li>이상적인 분포는 T1-T3 비율이 20-30% 정도로 균형잡힌 역량 분산입니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 900px;">
+                                <canvas id="concentrationRadarChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div id="concentrationAlertList" class="space-y-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- 연봉 효율성 탭 -->
+                        <div id="insight-efficiency" class="insight-tab-content hidden">
+                            <h4 class="section-title">연봉 효율성 분석</h4>
+                            
+                            <!-- 파트 필터 및 정렬 -->
+                            <div class="mb-4 flex items-center gap-4">
+                                <label for="efficiencyPartFilter" class="text-sm font-medium text-gray-700">파트 필터:</label>
+                                <select id="efficiencyPartFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                    <option value="">전체</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-red-900 mb-2">⚠️ 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-red-800 space-y-2">
+                                    <p><strong>분석 목적:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li>Tier가 낮은데 연봉이 높게 책정된 인원을 찾아 보상 체계의 공정성을 점검합니다.</li>
+                                        <li>역량 대비 과도한 보상이 발생하는 경우를 감지하여 조직의 보상 효율성을 개선합니다.</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>Tier 가중치:</strong> T1=6점, T2=5점, T3=4점, T4=3점, T5=2점, T6=1점</li>
+                                        <li><strong>Segment별 평균 연봉:</strong> 각 Segment의 모든 직원 연봉 합계 ÷ 인원수</li>
+                                        <li><strong>Segment별 평균 Tier 가중치:</strong> 각 직원의 Tier 가중치 합계 ÷ 인원수</li>
+                                        <li><strong>비정상 보상 기준:</strong> Tier 5-6인데 해당 Segment 평균 연봉보다 높거나, 전체 평균 연봉보다 높은 경우</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>버블 차트:</strong> X축은 Tier 가중치, Y축은 평균 연봉, 버블 크기는 인원수를 나타냅니다.</li>
+                                        <li><strong>빨간색 버블:</strong> Tier 가중치가 낮은데 평균 연봉이 높은 Segment (주의 필요)</li>
+                                        <li><strong>노란색 버블:</strong> 보통 수준의 Segment</li>
+                                        <li><strong>초록색 버블:</strong> Tier 대비 연봉이 적정한 Segment</li>
+                                        <li><strong>⚠️ Red Alert 인원:</strong> Tier 5-6인데 연봉이 높게 책정된 인원으로, 다음을 의미할 수 있습니다:
+                                            <ul class="list-disc list-inside ml-4 mt-1">
+                                                <li><strong>보상 체계 문제:</strong> Tier 평가와 보상이 불일치하여 역량 대비 과도한 보상</li>
+                                                <li><strong>Tier 평가 문제:</strong> 실제 역량보다 Tier가 낮게 평가되었을 가능성</li>
+                                                <li><strong>보상 공정성 문제:</strong> 동일 Tier 내에서도 연봉 편차가 커서 공정성 저해</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>개선 방안:</strong>
+                                            <ul class="list-disc list-inside ml-4 mt-1">
+                                                <li>해당 인원의 Tier 재평가 검토</li>
+                                                <li>보상 체계의 공정성 및 일관성 점검</li>
+                                                <li>동일 Tier 내 연봉 편차 최소화 방안 검토</li>
+                                                <li>역량 대비 보상이 적정한지 재검토</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 300px;">
+                                <canvas id="efficiencyBubbleChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border mb-4">
+                                <table class="min-w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="text-left p-2">Segment</th>
+                                            <th class="text-right p-2">평균 연봉</th>
+                                            <th class="text-right p-2">평균 Tier 가중치</th>
+                                            <th class="text-right p-2">Alert 인원수</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="efficiencyTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="mb-3 flex items-center justify-between">
+                                    <div class="text-sm font-semibold text-red-600">⚠️ Tier가 낮은데 연봉이 높은 인원 (Red Alert)</div>
+                                    <div class="flex items-center gap-2">
+                                        <label for="efficiencySortOrder" class="text-xs text-gray-600">정렬:</label>
+                                        <select id="efficiencySortOrder" class="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                            <option value="desc">괴리 큰 순 (내림차순)</option>
+                                            <option value="asc">괴리 작은 순 (올림차순)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="efficiencyAlertList"></div>
+                            </div>
+                        </div>
+
+                        <!-- 성장 잠재력 탭 -->
+                        <div id="insight-growth" class="insight-tab-content hidden">
+                            <h4 class="section-title">성장 잠재력 분석</h4>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-purple-900 mb-2">🌱 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-purple-800 space-y-2">
+                                    <p><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>신규 인원:</strong> 입사일 기준 12개월 이내 인원</li>
+                                        <li><strong>고Tier 신규 인원:</strong> 신규 인원 중 Tier 1-3인 인원</li>
+                                        <li><strong>성장 잠재력:</strong> (고Tier 신규 인원수 ÷ 전체 인원수) × 100</li>
+                                        <li><strong>Level 분류:</strong> L1(6개월 미만), L2(6-12개월), L3(12개월 이상)</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>성장 잠재력이 높을수록</strong> 신규 인원 중 역량이 높은 인원이 많아 빠른 성장이 기대됩니다.</li>
+                                        <li><strong>스택 바 차트:</strong> 각 Segment별 Level(L1/L2/L3) 분포를 보여줍니다.</li>
+                                        <li><strong>파란색(L1):</strong> 6개월 미만 신규 인원 - 초기 적응 단계</li>
+                                        <li><strong>초록색(L2):</strong> 6-12개월 인원 - 성장 단계</li>
+                                        <li><strong>노란색(L3):</strong> 12개월 이상 인원 - 안정 단계</li>
+                                        <li>성장 잠재력이 높은 Segment는 멘토링 체계 구축과 빠른 책임 부여를 통해 성장을 가속화할 수 있습니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 300px;">
+                                <canvas id="growthStackChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="text-sm font-semibold mb-2">💡 성장 잠재력 높은 Segment</div>
+                                <div id="growthPotentialList" class="space-y-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- 목표-실제 역량 괴리 분석 탭 -->
+                        <div id="insight-gap" class="insight-tab-content hidden">
+                            <h4 class="section-title">목표-실제 역량 괴리 분석</h4>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-indigo-900 mb-2">📈 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-indigo-800 space-y-2">
+                                    <p><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>목표 T1-T3 비율:</strong> 사용자가 설정한 목표 비율 (기본값: 30%)</li>
+                                        <li><strong>실제 T1-T3 비율:</strong> (T1+T2+T3 인원수) ÷ 전체 인원수 × 100</li>
+                                        <li><strong>역량 괴리:</strong> 실제 T1-T3 비율 - 목표 T1-T3 비율</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>막대 그래프:</strong> 파란색은 목표 비율, 초록/빨강은 실제 비율을 나타냅니다.</li>
+                                        <li><strong>초록색 막대:</strong> 목표 대비 실제 비율이 높거나 같음 (양호)</li>
+                                        <li><strong>빨간색 막대:</strong> 목표 대비 실제 비율이 낮음 (개선 필요)</li>
+                                        <li><strong>격차가 -5%p 이상</strong>이면 역량 강화 프로그램이 필요합니다.</li>
+                                        <li>슬라이더로 목표 비율을 조정하여 조직의 역량 목표를 설정할 수 있습니다.</li>
+                                        <li>이 분석을 통해 역량 강화가 필요한 Segment를 우선순위화할 수 있습니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">목표 T1-T3 비율 조정</label>
+                                <input type="range" id="targetRatioSlider" min="0" max="100" value="30" class="w-full">
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>0%</span>
+                                    <span id="targetRatioValue" class="font-semibold">30%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 300px;">
+                                <canvas id="gapComparisonChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div id="gapRecommendations" class="space-y-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- 핵심 인재 분포 탭 -->
+                        <div id="insight-talent" class="insight-tab-content hidden">
+                            <h4 class="section-title">핵심 인재 분포 분석</h4>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-orange-900 mb-2">⭐ 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-orange-800 space-y-2">
+                                    <p><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>핵심 인재 (T1-T2):</strong> Tier 1-2 인원 (최고 역량 인재)</li>
+                                        <li><strong>핵심 인재 (T1-T3):</strong> Tier 1-3 인원 (고역량 인재 포함)</li>
+                                        <li><strong>핵심 인재 수:</strong> 각 Segment별 해당 Tier 범위의 인원수 합계</li>
+                                        <li><strong>순위:</strong> 핵심 인재 수가 많은 순서대로 정렬</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>T1-T2 기준:</strong> 최고 역량 인재만 집중 분석하여 핵심 인재의 분포를 파악합니다.</li>
+                                        <li><strong>T1-T3 기준:</strong> 고역량 인재까지 포함하여 더 넓은 범위의 역량 분포를 분석합니다.</li>
+                                        <li><strong>막대 그래프:</strong> 각 Segment별 핵심 인재 절대 수를 보여줍니다.</li>
+                                        <li><strong>순위별 정렬:</strong> 핵심 인재 수가 많은 Segment부터 순서대로 표시됩니다.</li>
+                                        <li><strong>핵심 인재가 많은 Segment:</strong> 역량이 집중된 Segment로, 조직의 핵심 역량을 담당합니다.</li>
+                                        <li><strong>핵심 인재가 적은 Segment:</strong> 역량 강화가 필요하며, 핵심 인재 채용 또는 재배치를 고려해야 합니다.</li>
+                                        <li>핵심 인재가 특정 Segment에 과도하게 집중되면 조직의 리스크가 증가할 수 있습니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Tier 범위 선택 버튼 -->
+                            <div class="mb-4 flex gap-2">
+                                <button id="talentRangeT12" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium">
+                                    T1-T2 기준
+                                </button>
+                                <button id="talentRangeT13" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors font-medium">
+                                    T1-T3 기준
+                                </button>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 300px;">
+                                <canvas id="talentTreemapChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div id="talentRecommendations" class="space-y-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- 경력-역량 매칭 탭 -->
+                        <div id="insight-experience" class="insight-tab-content hidden">
+                            <h4 class="section-title">경력-역량 매칭도 분석</h4>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-teal-900 mb-2">👥 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-teal-800 space-y-2">
+                                    <p><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>경력 계산:</strong> 기준일 - 프로젝트 합류일 (OQ 합류일 기준)</li>
+                                        <li><strong>경력 구간 분류:</strong>
+                                            <ul class="list-disc list-inside ml-4 mt-1">
+                                                <li>0-6개월 미만</li>
+                                                <li>6-12개월 미만</li>
+                                                <li>12-18개월 미만</li>
+                                                <li>18-24개월 미만</li>
+                                                <li>24개월 이상</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>불일치 기준:</strong> 경력 24개월 이상인데 Tier 5-6인 경우</li>
+                                        <li><strong>매칭도:</strong> 경력 구간별 Tier 1-6 인원수 분포</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>누적 막대 그래프:</strong> 각 경력 구간별 Tier 1-6 인원 분포를 표시합니다.</li>
+                                        <li><strong>초록색 영역:</strong> 적정 Tier (T1-T3) - 경력과 역량이 적절히 매칭됨</li>
+                                        <li><strong>빨간색 영역:</strong> 낮은 Tier (T4-T6) - 경력 대비 역량 부족</li>
+                                        <li><strong>경력이 증가할수록</strong> 높은 Tier 비율이 증가하는 것이 이상적입니다.</li>
+                                        <li><strong>24개월 이상 경력인데 Tier 5-6인 경우</strong>는 인사 평가 체계 재검토 또는 역량 강화 프로그램이 필요합니다.</li>
+                                        <li>특정 경력 구간에서 낮은 Tier 비율이 높으면 해당 경력대의 역량 개발이 필요함을 의미합니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 300px;">
+                                <canvas id="experienceHeatmapChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div id="experienceAlerts" class="space-y-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- 종합 분석 탭 -->
+                        <div id="insight-comprehensive" class="insight-tab-content hidden">
+                            <h4 class="section-title">종합 분석</h4>
+                            
+                            <!-- 설명 섹션 -->
+                            <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-4">
+                                <h5 class="font-semibold text-gray-900 mb-2">🎯 분석 방법 및 해석 가이드</h5>
+                                <div class="text-sm text-gray-800 space-y-2">
+                                    <p><strong>계산식:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>Tier 분포 점수:</strong> (실제 T1-T3 비율 ÷ 30%) × 100 (최대 100점)</li>
+                                        <li><strong>연봉 효율성 점수:</strong> (연봉 효율성 ÷ 2천만원) × 100 (최대 100점)</li>
+                                        <li><strong>종합 점수:</strong> Tier 분포 점수(40%) + 연봉 효율성 점수(30%) + 보너스 점수(30%)</li>
+                                        <li><strong>보너스 점수:</strong> T1-T3 비율이 20% 이상이면 30점, 아니면 0점</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>해석 방법:</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><strong>가로 막대 그래프:</strong> 각 Segment별 종합 점수를 순위대로 표시합니다.</li>
+                                        <li><strong>초록색 막대:</strong> 종합 점수 70점 이상 (우수)</li>
+                                        <li><strong>노란색 막대:</strong> 종합 점수 50-70점 (보통)</li>
+                                        <li><strong>빨간색 막대:</strong> 종합 점수 50점 미만 (개선 필요)</li>
+                                        <li>종합 점수가 낮은 Segment부터 우선순위를 매겨 역량 강화 프로그램을 진행합니다.</li>
+                                        <li>이 분석을 통해 조직 전반의 건강도를 파악하고 개선 우선순위를 결정할 수 있습니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border mb-4" style="height: 300px;">
+                                <canvas id="comprehensiveRankingChart"></canvas>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="text-sm font-semibold mb-2">📈 조직 건강도 개선 우선순위</div>
+                                <div id="improvementPriority" class="space-y-2"></div>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -2440,28 +3086,45 @@
             // ####################
             const tab1Button = document.getElementById('tab1-button');
             const tab2Button = document.getElementById('tab2-button');
+            const tab3Button = document.getElementById('tab3-button');
             const tab1Content = document.getElementById('tab1-content');
             const tab2Content = document.getElementById('tab2-content');
+            const tab3Content = document.getElementById('tab3-content');
 
             // Tab 2 암호 관리
             let isTab2Unlocked = false;
             const TAB2_PASSWORD = 'Eodzb150!';
 
             function switchTab(tabNumber) {
+                // 모든 탭 버튼 스타일 초기화
+                [tab1Button, tab2Button, tab3Button].forEach(btn => {
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                    btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                });
+                
+                // 모든 탭 콘텐츠 숨기기
+                [tab1Content, tab2Content, tab3Content].forEach(content => {
+                    content.classList.add('hidden');
+                });
+
                 if (tabNumber === 1) {
                     tab1Button.classList.add('border-indigo-500', 'text-indigo-600');
                     tab1Button.classList.remove('border-transparent', 'text-gray-500');
-                    tab2Button.classList.add('border-transparent', 'text-gray-500');
-                    tab2Button.classList.remove('border-indigo-500', 'text-indigo-600');
                     tab1Content.classList.remove('hidden');
-                    tab2Content.classList.add('hidden');
-                } else {
+                } else if (tabNumber === 2) {
+                    if (!isTab2Unlocked) {
+                        showPasswordModal();
+                        return;
+                    }
                     tab2Button.classList.add('border-indigo-500', 'text-indigo-600');
                     tab2Button.classList.remove('border-transparent', 'text-gray-500');
-                    tab1Button.classList.add('border-transparent', 'text-gray-500');
-                    tab1Button.classList.remove('border-indigo-500', 'text-indigo-600');
                     tab2Content.classList.remove('hidden');
-                    tab1Content.classList.add('hidden');
+                } else if (tabNumber === 3) {
+                    tab3Button.classList.add('border-indigo-500', 'text-indigo-600');
+                    tab3Button.classList.remove('border-transparent', 'text-gray-500');
+                    tab3Content.classList.remove('hidden');
+                    // HR 인사이트 초기화
+                    initializeHRInsights();
                 }
             }
 
@@ -2492,6 +3155,7 @@
                     switchTab(2);
                 }
             });
+            tab3Button.addEventListener('click', () => switchTab(3));
 
             // ####################
             // Employee Management
@@ -2553,6 +3217,131 @@
 
             // Employee data management
             let employees = [];
+
+            // CSV 데이터에서 팀/파트/직책/상세직군 정보 매핑 (사번 기준)
+            const employeeOrgData = {
+                "SP004": {team: "2D아트팀", part: "도트디자인2파트", position: "", detailRole: "도트 디자이너"},
+                "SP025": {team: "2D아트팀", part: "도트애니메이션2파트", position: "", detailRole: "도트 디자이너"},
+                "SP028": {team: "프로그램팀", part: "서버파트", position: "", detailRole: "서버 프로그래머"},
+                "SP041": {team: "프로그램팀", part: "클라이언트4파트", position: "파트장", detailRole: "클라이언트 프로그래머"},
+                "SP042": {team: "프로그램팀", part: "서버파트", position: "TD", detailRole: "서버 프로그래머"},
+                "SP048": {team: "퀄리티 팀", part: "빌드파트", position: "파트장", detailRole: "빌드 매니저"},
+                "SP052": {team: "프로그램팀", part: "클라이언트4파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP071": {team: "프로그램팀", part: "서버파트", position: "", detailRole: "서버 프로그래머"},
+                "SP075": {team: "3D아트팀", part: "배경원화파트", position: "파트장", detailRole: "원화가"},
+                "SP083": {team: "2D아트팀", part: "도트디자인2파트", position: "파트장", detailRole: "도트 디자이너"},
+                "SP098": {team: "프로그램팀", part: "서버파트", position: "파트장", detailRole: "서버 프로그래머"},
+                "SP109": {team: "프로그램팀", part: "클라이언트4파트", position: "선임파트원", detailRole: "클라이언트 프로그래머"},
+                "SP117": {team: "핵심리더팀", part: "핵심리더파트", position: "리더", detailRole: ""},
+                "SP164": {team: "핵심리더팀", part: "핵심리더파트", position: "AD", detailRole: "도트 디자이너"},
+                "SP190": {team: "기획팀", part: "게임UI파트", position: "파트장", detailRole: "UI/UX 디자이너"},
+                "SP224": {team: "2D아트팀", part: "도트애니메이션1파트", position: "파트장", detailRole: "도트 디자이너"},
+                "SP245": {team: "2D아트팀", part: "컨셉원화파트", position: "", detailRole: "원화가"},
+                "SP249": {team: "3D아트팀", part: "이펙트파트", position: "파트장", detailRole: "이펙터"},
+                "SP252": {team: "2D아트팀", part: "도트애니메이션1파트", position: "", detailRole: "도트 디자이너"},
+                "SP264": {team: "프로그램팀", part: "클라이언트2파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP267": {team: "2D아트팀", part: "도트디자인1파트", position: "선임파트원", detailRole: "도트 디자이너"},
+                "SP298": {team: "2D아트팀", part: "도트디자인2파트", position: "선임파트원", detailRole: "도트 디자이너"},
+                "SP299": {team: "기획팀", part: "게임UI파트", position: "", detailRole: "UI/UX 디자이너"},
+                "SP313": {team: "2D아트팀", part: "가이드모델링파트", position: "파트장", detailRole: "3D 가이드 모델러"},
+                "SP328": {team: "2D아트팀", part: "컨셉원화파트", position: "", detailRole: "원화가"},
+                "SP345": {team: "퀄리티 팀", part: "빌드파트", position: "", detailRole: "빌드 PM"},
+                "SP346": {team: "2D아트팀", part: "컨셉원화파트", position: "파트장", detailRole: "원화가"},
+                "SP357": {team: "2D아트팀", part: "도트애니메이션2파트", position: "파트장", detailRole: "도트 디자이너"},
+                "SP363": {team: "2D아트팀", part: "가이드모델링파트", position: "", detailRole: "3D 가이드 모델러"},
+                "SP370": {team: "3D아트팀", part: "배경원화파트", position: "", detailRole: "원화가"},
+                "SP371": {team: "3D아트팀", part: "배경원화파트", position: "선임파트원", detailRole: "원화가"},
+                "SP380": {team: "2D아트팀", part: "컨셉원화파트", position: "선임파트원", detailRole: "원화가"},
+                "SP382": {team: "기획팀", part: "시스템1파트", position: "", detailRole: "콘텐츠 기획자"},
+                "SP401": {team: "기획팀", part: "게임UI파트", position: "", detailRole: "UI/UX 디자이너"},
+                "SP409": {team: "3D아트팀", part: "배경월드빌딩파트", position: "", detailRole: "3D 월드 빌더"},
+                "SP418": {team: "2D아트팀", part: "도트애니메이션2파트", position: "", detailRole: "도트 디자이너"},
+                "SP419": {team: "2D아트팀", part: "도트디자인1파트", position: "", detailRole: "도트 디자이너"},
+                "SP430": {team: "프로그램팀", part: "서버파트", position: "", detailRole: "서버 프로그래머"},
+                "SP491": {team: "프로그램팀", part: "클라이언트2파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP504": {team: "2D아트팀", part: "도트디자인2파트", position: "", detailRole: "도트 디자이너"},
+                "SP505": {team: "2D아트팀", part: "도트애니메이션2파트", position: "", detailRole: "도트 디자이너"},
+                "SP508": {team: "2D아트팀", part: "도트애니메이션1파트", position: "선임파트원", detailRole: "도트 디자이너"},
+                "SP524": {team: "기획팀", part: "밸런스파트", position: "파트장", detailRole: "경제/전투 밸런스 기획자"},
+                "SP531": {team: "기획팀", part: "콘텐츠파트", position: "", detailRole: "시나리오/퀘스트 기획자"},
+                "SP535": {team: "프로그램팀", part: "클라이언트4파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP536": {team: "3D아트팀", part: "배경모델링파트", position: "파트장", detailRole: "배경 모델러"},
+                "SP538": {team: "2D아트팀", part: "가이드모델링파트", position: "선임파트원", detailRole: "3D 가이드 모델러"},
+                "SP559": {team: "2D아트팀", part: "도트디자인1파트", position: "파트장", detailRole: "도트 디자이너"},
+                "SP564": {team: "2D아트팀", part: "컨셉원화파트", position: "", detailRole: "원화가"},
+                "SP574": {team: "3D아트팀", part: "배경원화파트", position: "", detailRole: "원화가"},
+                "SP584": {team: "핵심리더팀", part: "핵심리더파트", position: "리더", detailRole: "배경 모델러"},
+                "SP590": {team: "프로그램팀", part: "클라이언트2파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP592": {team: "2D아트팀", part: "도트애니메이션2파트", position: "선임파트원", detailRole: "도트 디자이너"},
+                "SP597": {team: "2D아트팀", part: "도트디자인1파트", position: "", detailRole: "도트 디자이너"},
+                "SP598": {team: "2D아트팀", part: "도트디자인2파트", position: "", detailRole: "도트 디자이너"},
+                "SP606": {team: "기획팀", part: "콘텐츠파트", position: "", detailRole: "시나리오/퀘스트 기획자"},
+                "SP607": {team: "3D아트팀", part: "3D캐릭터모델링파트", position: "", detailRole: "3D 캐릭터 모델러"},
+                "SP614": {team: "2D아트팀", part: "가이드모델링파트", position: "", detailRole: "3D 가이드 모델러"},
+                "SP625": {team: "3D아트팀", part: "배경모델링파트", position: "", detailRole: "배경 모델러"},
+                "SP631": {team: "퀄리티 팀", part: "QA파트", position: "파트장", detailRole: "QA 담당자"},
+                "SP638": {team: "기획팀", part: "시스템1파트", position: "", detailRole: "제너럴 기획자"},
+                "SP643": {team: "3D아트팀", part: "배경모델링파트", position: "", detailRole: "배경 모델러"},
+                "SP644": {team: "프로그램팀", part: "클라이언트1파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP645": {team: "퀄리티 팀", part: "QA파트", position: "", detailRole: "QA 담당자"},
+                "SP654": {team: "3D아트팀", part: "3D캐릭터모델링파트", position: "파트장", detailRole: "3D 캐릭터 모델러"},
+                "SP656": {team: "3D아트팀", part: "3D애니메이션파트", position: "파트장", detailRole: "3D 애니메이터"},
+                "SP665": {team: "3D아트팀", part: "배경원화파트", position: "", detailRole: "원화가"},
+                "SP668": {team: "프로그램팀", part: "클라이언트1파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP669": {team: "퀄리티 팀", part: "QA파트", position: "", detailRole: "QA담당자"},
+                "SP671": {team: "3D아트팀", part: "배경월드빌딩파트", position: "파트장", detailRole: "3D 월드 빌더"},
+                "SP672": {team: "2D아트팀", part: "컨셉원화파트", position: "", detailRole: "원화가"},
+                "SP675": {team: "3D아트팀", part: "3D캐릭터모델링파트", position: "선임파트원", detailRole: "3D 캐릭터 모델러"},
+                "SP676": {team: "프로그램팀", part: "클라이언트1파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP677": {team: "프로그램팀", part: "클라이언트2파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP687": {team: "3D아트팀", part: "3D애니메이션파트", position: "", detailRole: "3D 애니메이터"},
+                "SP690": {team: "프로그램팀", part: "클라이언트2파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP693": {team: "3D아트팀", part: "3D캐릭터모델링파트", position: "", detailRole: "3D 캐릭터 모델러"},
+                "SP695": {team: "3D아트팀", part: "배경원화파트", position: "", detailRole: "원화가"},
+                "SP699": {team: "퀄리티 팀", part: "PM파트", position: "파트장", detailRole: "개발 PM"},
+                "SP700": {team: "3D아트팀", part: "이펙트파트", position: "", detailRole: "이펙터"},
+                "SP704": {team: "2D아트팀", part: "도트애니메이션2파트", position: "", detailRole: "도트 디자이너"},
+                "SP705": {team: "2D아트팀", part: "도트애니메이션1파트", position: "", detailRole: "도트 디자이너"},
+                "SP706": {team: "2D아트팀", part: "도트애니메이션1파트", position: "", detailRole: "도트 디자이너"},
+                "SP707": {team: "2D아트팀", part: "도트애니메이션1파트", position: "", detailRole: "도트 디자이너"},
+                "SP710": {team: "기획팀", part: "시스템2파트", position: "", detailRole: "시스템 기획자"},
+                "SP711": {team: "기획팀", part: "콘텐츠파트", position: "", detailRole: "시나리오/퀘스트 기획자"},
+                "SP720": {team: "기획팀", part: "시스템2파트", position: "", detailRole: "시스템 기획자"},
+                "SP722": {team: "기획팀", part: "밸런스파트", position: "", detailRole: "전투 밸런스 기획자"},
+                "SP728": {team: "퀄리티 팀", part: "빌드파트", position: "", detailRole: "빌드 매니저"},
+                "SP730": {team: "프로그램팀", part: "클라이언트3파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP731": {team: "프로그램팀", part: "서버파트", position: "", detailRole: "서버 프로그래머"},
+                "SP735": {team: "3D아트팀", part: "이펙트파트", position: "", detailRole: "이펙터"},
+                "SP737": {team: "기획팀", part: "밸런스파트", position: "", detailRole: "경제 밸런스 기획자"},
+                "SP739": {team: "퀄리티 팀", part: "빌드파트", position: "", detailRole: "빌드 매니저"},
+                "SP744": {team: "핵심리더팀", part: "핵심리더파트", position: "퀄리티 디렉터", detailRole: ""},
+                "SP754": {team: "핵심리더팀", part: "핵심리더파트", position: "게임 디렉터", detailRole: ""},
+                "SP755": {team: "퀄리티 팀", part: "PM파트", position: "", detailRole: "개발 PM"},
+                "SP756": {team: "기획팀", part: "시스템1파트", position: "", detailRole: "콘텐츠 기획자"},
+                "SP764": {team: "기획팀", part: "시스템2파트", position: "", detailRole: "제너럴 기획자"},
+                "SP765": {team: "기획팀", part: "밸런스파트", position: "", detailRole: "전투 밸런스 기획자"},
+                "SP766": {team: "기획팀", part: "시스템2파트", position: "", detailRole: "시스템 기획자"},
+                "SP767": {team: "기획팀", part: "시스템2파트", position: "", detailRole: "시스템 기획자"},
+                "SP768": {team: "3D아트팀", part: "3D애니메이션파트", position: "", detailRole: "3D 애니메이터"},
+                "SP769": {team: "3D아트팀", part: "이펙트파트", position: "", detailRole: "이펙터"},
+                "SP770": {team: "퀄리티 팀", part: "TA파트", position: "", detailRole: "테크니컬 아티스트"},
+                "SP771": {team: "기획팀", part: "밸런스파트", position: "", detailRole: "전투 밸런스 기획자"},
+                "SP772": {team: "3D아트팀", part: "배경월드빌딩파트", position: "", detailRole: "월드 빌더"},
+                "SP773": {team: "기획팀", part: "게임UI파트", position: "", detailRole: "UI/UX 디자이너"},
+                "SP774": {team: "3D아트팀", part: "배경모델링파트", position: "", detailRole: "배경 모델러"},
+                "SP775": {team: "2D아트팀", part: "도트애니메이션1파트", position: "", detailRole: "도트 디자이너"},
+                "SP776": {team: "2D아트팀", part: "도트애니메이션1파트", position: "", detailRole: "도트 디자이너"},
+                "SP777": {team: "기획팀", part: "콘텐츠파트", position: "", detailRole: "전투 콘텐츠 기획자"},
+                "SP778": {team: "퀄리티 팀", part: "PM파트", position: "", detailRole: "개발 PM"},
+                "SP779": {team: "기획팀", part: "콘텐츠파트", position: "", detailRole: "시나리오 라이터"},
+                "SP781": {team: "3D아트팀", part: "배경모델링파트", position: "", detailRole: "3D 배경 모델러"},
+                "SP782": {team: "퀄리티 팀", part: "TA파트", position: "", detailRole: "테크니컬 아티스트"},
+                "SP783": {team: "3D아트팀", part: "배경모델링파트", position: "", detailRole: "3D 배경 모델러"},
+                "SP784": {team: "3D아트팀", part: "배경모델링파트", position: "", detailRole: "3D 배경 모델러"},
+                "SP367": {team: "프로그램팀", part: "클라이언트파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP433": {team: "프로그램팀", part: "클라이언트파트", position: "", detailRole: "클라이언트 프로그래머"},
+                "SP785": {team: "기획팀", part: "콘텐츠파트", position: "", detailRole: "전투 콘텐츠 기획자"}
+            };
 
             // Load initial employee data from CSV
             const initialEmployees = [
@@ -2666,14 +3455,23 @@
                 {id: "SP777", name: "김보영", tier: 5, joinDate: "2025-10-27", salary: 50000000, isNew: true},
                 {id: "SP778", name: "조아영", tier: 5, joinDate: "2025-10-27", salary: 43000000, isNew: true},
                 {id: "SP779", name: "최준형", tier: 5, joinDate: "2025-11-10", salary: 34000000, isNew: true},
-                {id: "SP780", name: "황태준", tier: 5, joinDate: "2025-11-17", salary: 54000000, isNew: true},
                 {id: "SP781", name: "홍유진", tier: 5, joinDate: "2025-11-17", salary: 30000000, isNew: true},
-                {id: "SP782", name: "김영일", tier: 5, joinDate: "2025-11-17", salary: 69000000, isNew: true},
-                {id: "SP783", name: "김대철", tier: 5, joinDate: "2025-11-17", salary: 70100000, isNew: true},
+                {id: "SP782", name: "황태준", tier: 5, joinDate: "2025-11-17", salary: 54000000, isNew: true},
+                {id: "SP367", name: "김영일", tier: 5, joinDate: "2025-11-17", salary: 69000000, isNew: true},
+                {id: "SP433", name: "김대철", tier: 5, joinDate: "2025-11-17", salary: 70100000, isNew: true},
                 {id: "SP784", name: "문혜주", tier: 5, joinDate: "2025-11-24", salary: 33000000, isNew: true},
                 {id: "SP785", name: "박준수", tier: 5, joinDate: "2025-11-25", salary: 35000000, isNew: true},
                 {id: "SP531", name: "이재청", tier: 6, joinDate: "2023-03-06", salary: 92500000, isNew: false}
             ];
+
+            // 각 직원에 조직 정보 추가
+            initialEmployees.forEach(emp => {
+                const orgData = employeeOrgData[emp.id] || {team: "", part: "", position: "", detailRole: ""};
+                emp.team = orgData.team;
+                emp.part = orgData.part;
+                emp.position = orgData.position;
+                emp.detailRole = orgData.detailRole;
+            });
 
             function calculateLevel(joinDate, baseDate) {
                 // Convert dates to UTC to avoid timezone issues
@@ -2933,6 +3731,51 @@
                 }
             }
 
+            // 필터 드롭다운 업데이트 함수
+            function updateFilterDropdowns() {
+                // 고유한 값들 추출
+                const teams = [...new Set(employees.map(emp => emp.team).filter(t => t))].sort();
+                const parts = [...new Set(employees.map(emp => emp.part).filter(p => p))].sort();
+                const positions = [...new Set(employees.map(emp => emp.position).filter(p => p))].sort();
+                const detailRoles = [...new Set(employees.map(emp => emp.detailRole).filter(r => r))].sort();
+
+                // 팀 필터 업데이트
+                const teamFilter = document.getElementById('teamFilter');
+                if (teamFilter) {
+                    const currentValue = teamFilter.value;
+                    teamFilter.innerHTML = '<option value="all">전체</option>' + 
+                        teams.map(team => `<option value="${team}">${team}</option>`).join('');
+                    teamFilter.value = currentValue || 'all';
+                }
+
+                // 파트 필터 업데이트
+                const partFilter = document.getElementById('partFilter');
+                if (partFilter) {
+                    const currentValue = partFilter.value;
+                    partFilter.innerHTML = '<option value="all">전체</option>' + 
+                        parts.map(part => `<option value="${part}">${part}</option>`).join('');
+                    partFilter.value = currentValue || 'all';
+                }
+
+                // 직책 필터 업데이트
+                const positionFilter = document.getElementById('positionFilter');
+                if (positionFilter) {
+                    const currentValue = positionFilter.value;
+                    positionFilter.innerHTML = '<option value="all">전체</option>' + 
+                        positions.map(position => `<option value="${position}">${position || '(없음)'}</option>`).join('');
+                    positionFilter.value = currentValue || 'all';
+                }
+
+                // 상세직군 필터 업데이트
+                const detailRoleFilter = document.getElementById('detailRoleFilter');
+                if (detailRoleFilter) {
+                    const currentValue = detailRoleFilter.value;
+                    detailRoleFilter.innerHTML = '<option value="all">전체</option>' + 
+                        detailRoles.map(role => `<option value="${role}">${role}</option>`).join('');
+                    detailRoleFilter.value = currentValue || 'all';
+                }
+            }
+
             function updateEmployeeTable() {
                 // 먼저 사원 데이터를 기반으로 Step 2 인원 업데이트
                 updateHeadcountFromEmployeeData();
@@ -2957,13 +3800,21 @@
                 // Get filter and sort values
                 const searchName = document.getElementById('searchName')?.value.toLowerCase() || '';
                 const tierFilter = document.getElementById('tierFilter')?.value || 'all';
+                const teamFilter = document.getElementById('teamFilter')?.value || 'all';
+                const partFilter = document.getElementById('partFilter')?.value || 'all';
+                const positionFilter = document.getElementById('positionFilter')?.value || 'all';
+                const detailRoleFilter = document.getElementById('detailRoleFilter')?.value || 'all';
                 const sortOrder = document.getElementById('sortOrder')?.value || 'asc';
 
                 // Filter employees
                 let filteredEmployees = employees.filter(emp => {
                     const nameMatch = emp.name.toLowerCase().includes(searchName);
                     const tierMatch = tierFilter === 'all' || emp.tier === parseInt(tierFilter);
-                    return nameMatch && tierMatch;
+                    const teamMatch = teamFilter === 'all' || emp.team === teamFilter;
+                    const partMatch = partFilter === 'all' || emp.part === partFilter;
+                    const positionMatch = positionFilter === 'all' || emp.position === positionFilter;
+                    const detailRoleMatch = detailRoleFilter === 'all' || emp.detailRole === detailRoleFilter;
+                    return nameMatch && tierMatch && teamMatch && partMatch && positionMatch && detailRoleMatch;
                 });
 
                 // Sort employees by tier
@@ -2978,7 +3829,10 @@
                 const searchResultsDiv = document.getElementById('searchResults');
                 const searchResultText = document.getElementById('searchResultText');
                 
-                if (searchName || tierFilter !== 'all') {
+                // Update filter dropdowns dynamically
+                updateFilterDropdowns();
+
+                if (searchName || tierFilter !== 'all' || teamFilter !== 'all' || partFilter !== 'all' || positionFilter !== 'all' || detailRoleFilter !== 'all') {
                     const totalCount = employees.length;
                     const filteredCount = filteredEmployees.length;
                     let resultText = `검색 결과: ${filteredCount}명`;
@@ -2988,6 +3842,18 @@
                     }
                     if (tierFilter !== 'all') {
                         resultText += ` (Tier: T${tierFilter})`;
+                    }
+                    if (teamFilter !== 'all') {
+                        resultText += ` (팀: ${teamFilter})`;
+                    }
+                    if (partFilter !== 'all') {
+                        resultText += ` (파트: ${partFilter})`;
+                    }
+                    if (positionFilter !== 'all') {
+                        resultText += ` (직책: ${positionFilter})`;
+                    }
+                    if (detailRoleFilter !== 'all') {
+                        resultText += ` (상세직군: ${detailRoleFilter})`;
                     }
                     resultText += ` / 전체 ${totalCount}명`;
                     
@@ -3040,11 +3906,15 @@
 
                     // 새로 추가된 직원인 경우 이름 컬럼에 노란색 배경 적용
                     const nameStyle = emp.isNew ? 'background-color: #fef3c7;' : '';
-                    
+
                     tr.innerHTML = `
                         <td class="text-center">${displayIndex + 1}</td>
                         <td class="text-center">${emp.id}</td>
                         <td class="text-center" style="${nameStyle}">${emp.name}</td>
+                        <td class="text-center">${emp.team || '-'}</td>
+                        <td class="text-center">${emp.part || '-'}</td>
+                        <td class="text-center">${emp.position || '-'}</td>
+                        <td class="text-center">${emp.detailRole || '-'}</td>
                         <td class="text-center">
                     <select class="input-base" onchange="updateEmployeeTier(${originalIndex}, this.value)">
                         ${[1,2,3,4,5,6,7].map(t => 
@@ -3369,6 +4239,20 @@
 
                     // Replace existing employees with new ones
                     employees = newEmployees;
+                    
+                    // 각 직원에 조직 정보 추가 (employeeOrgData 사용)
+                    employees.forEach(emp => {
+                        const orgData = employeeOrgData[emp.id] || {team: "", part: "", position: "", detailRole: ""};
+                        emp.team = orgData.team;
+                        emp.part = orgData.part;
+                        emp.position = orgData.position;
+                        emp.detailRole = orgData.detailRole;
+                        // isNew 플래그는 CSV에서 가져오지 않으므로 기본값 false로 설정
+                        if (emp.isNew === undefined) {
+                            emp.isNew = false;
+                        }
+                    });
+                    
                     updateEmployeeTable();
                     
                     // Clear file input
@@ -3392,7 +4276,7 @@
                 }
 
                 // CSV 헤더
-                let csvContent = '이름,Tier,OQ 합류일,연봉,사번,신규 추가 여부\n';
+                let csvContent = '이름,Tier,OQ 합류일,연봉,사번,팀,파트,직책,상세직군,신규 추가 여부\n';
                 
                 // 데이터 행 추가 (Tier 순으로 정렬)
                 const sortedEmployees = [...employees].sort((a, b) => {
@@ -3403,7 +4287,7 @@
                 sortedEmployees.forEach(emp => {
                     const joinDate = emp.joinDate;
                     const isNewFlag = emp.isNew ? '신규' : '';
-                    csvContent += `${emp.name},${emp.tier},${joinDate},${emp.salary},${emp.id},${isNewFlag}\n`;
+                    csvContent += `${emp.name},${emp.tier},${joinDate},${emp.salary},${emp.id},${emp.team || ''},${emp.part || ''},${emp.position || ''},${emp.detailRole || ''},${isNewFlag}\n`;
                 });
 
                 // Blob 생성 및 다운로드
@@ -3448,6 +4332,22 @@
             if (tierFilterSelect) {
                 tierFilterSelect.addEventListener('change', updateEmployeeTable);
             }
+            const teamFilterSelect = document.getElementById('teamFilter');
+            if (teamFilterSelect) {
+                teamFilterSelect.addEventListener('change', updateEmployeeTable);
+            }
+            const partFilterSelect = document.getElementById('partFilter');
+            if (partFilterSelect) {
+                partFilterSelect.addEventListener('change', updateEmployeeTable);
+            }
+            const positionFilterSelect = document.getElementById('positionFilter');
+            if (positionFilterSelect) {
+                positionFilterSelect.addEventListener('change', updateEmployeeTable);
+            }
+            const detailRoleFilterSelect = document.getElementById('detailRoleFilter');
+            if (detailRoleFilterSelect) {
+                detailRoleFilterSelect.addEventListener('change', updateEmployeeTable);
+            }
             if (sortOrderSelect) {
                 sortOrderSelect.addEventListener('change', updateEmployeeTable);
             }
@@ -3457,6 +4357,10 @@
                 resetFiltersBtn.addEventListener('click', () => {
                     if (searchNameInput) searchNameInput.value = '';
                     if (tierFilterSelect) tierFilterSelect.value = 'all';
+                    if (teamFilterSelect) teamFilterSelect.value = 'all';
+                    if (partFilterSelect) partFilterSelect.value = 'all';
+                    if (positionFilterSelect) positionFilterSelect.value = 'all';
+                    if (detailRoleFilterSelect) detailRoleFilterSelect.value = 'all';
                     if (sortOrderSelect) sortOrderSelect.value = 'none';
                     updateEmployeeTable();
                 });
@@ -3464,6 +4368,2138 @@
             
             // Initial population
             updateDays();
+            updateFilterDropdowns();
+            updateEmployeeTable();
+
+            // ####################
+            // HR 인사이트 관련 함수들
+            // ####################
+
+            // Chart 인스턴스 저장
+            let hrCharts = {};
+            
+            // 핵심 인재 분포 분석 Tier 범위 (기본값: T12)
+            let talentTierRange = 'T12';
+
+            // 인사이트 탭 전환
+            function switchInsightTab(tabName) {
+                // 모든 인사이트 탭 버튼 스타일 초기화
+                document.querySelectorAll('.insight-tab-button').forEach(btn => {
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                    btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                });
+
+                // 모든 인사이트 탭 콘텐츠 숨기기
+                document.querySelectorAll('.insight-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                // 선택된 탭 활성화
+                const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+                const activeContent = document.getElementById(`insight-${tabName}`);
+                
+                if (activeButton && activeContent) {
+                    activeButton.classList.add('border-indigo-500', 'text-indigo-600');
+                    activeButton.classList.remove('border-transparent', 'text-gray-500');
+                    activeContent.classList.remove('hidden');
+                    
+                    // 탭별 분석 실행
+                    updateInsightTab(tabName);
+                }
+            }
+
+            // 인사이트 탭별 업데이트
+            function updateInsightTab(tabName) {
+                const segment = document.getElementById('insightSegment')?.value || 'team';
+                const targetRatio = parseFloat(document.getElementById('targetTierRatio')?.value || 30);
+
+                switch(tabName) {
+                    case 'capability':
+                        analyzeCapability(segment);
+                        break;
+                    case 'mismatch':
+                        analyzeMismatch();
+                        break;
+                    case 'concentration':
+                        analyzeConcentration(segment);
+                        break;
+                    case 'efficiency':
+                        analyzeEfficiency(segment);
+                        break;
+                    case 'growth':
+                        analyzeGrowthPotential(segment);
+                        break;
+                    case 'gap':
+                        analyzeGap(segment, targetRatio);
+                        break;
+                    case 'talent':
+                        analyzeTalentDistribution(segment, talentTierRange);
+                        break;
+                    case 'experience':
+                        analyzeExperienceMatch();
+                        break;
+                    case 'comprehensive':
+                        analyzeComprehensive(segment);
+                        break;
+                }
+            }
+
+            // 현재 열린 모달의 인사이트 타입
+            let currentModalInsight = null;
+
+            // 모달 열기 (전역 함수)
+            window.openInsightModal = function(insightType) {
+                currentModalInsight = insightType;
+                const modal = document.getElementById('insightModal');
+                const modalContent = document.getElementById('modalContent');
+                const contentWrapper = document.getElementById(`insight-${insightType}`);
+                
+                if (!modal || !contentWrapper) return;
+
+                // 모달 제목 설정
+                const titles = {
+                    'capability': '연봉-능력 괴리 분석',
+                    'mismatch': '리더 능력 취약도 분석',
+                    'concentration': '역량 집중도',
+                    'efficiency': '연봉 효율성',
+                    'growth': '성장 잠재력',
+                    'gap': '목표-실제 역량 괴리 분석',
+                    'talent': '핵심 인재 분포',
+                    'experience': '경력-역량 매칭',
+                    'comprehensive': '종합 분석'
+                };
+                
+                const subtitles = {
+                    'capability': 'Segment별 연봉-능력 괴리 분석',
+                    'mismatch': '리더 능력 취약도 분석',
+                    'concentration': '역량 집중도 분석',
+                    'efficiency': 'Tier 대비 연봉 효율성 분석',
+                    'growth': '성장 잠재력 분석',
+                    'gap': '목표-실제 역량 괴리 분석',
+                    'talent': '핵심 인재 분포 분석',
+                    'experience': '경력-역량 매칭도 분석',
+                    'comprehensive': '종합 분석'
+                };
+
+                document.getElementById('modalTitle').textContent = titles[insightType] || '인사이트 분석';
+                document.getElementById('modalSubtitle').textContent = subtitles[insightType] || '상세 분석 및 데이터';
+
+                // 콘텐츠 복사
+                modalContent.innerHTML = contentWrapper.innerHTML;
+
+                // 모달 표시
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                // 모달 내부 이벤트 리스너 재연결
+                setTimeout(() => {
+                    // 목표 비율 슬라이더
+                    const slider = modalContent.querySelector('#targetRatioSlider');
+                    const sliderValue = modalContent.querySelector('#targetRatioValue');
+                    if (slider && sliderValue) {
+                        slider.addEventListener('input', (e) => {
+                            const value = e.target.value;
+                            sliderValue.textContent = value + '%';
+                            const targetRatioInput = modalContent.querySelector('#targetTierRatio');
+                            if (targetRatioInput) targetRatioInput.value = value;
+                            if (insightType === 'gap') {
+                                const segment = document.getElementById('insightSegment')?.value || 'team';
+                                analyzeGap(segment, parseFloat(value));
+                            }
+                        });
+                    }
+
+                    // 핵심 인재 분포 Tier 범위 선택 버튼
+                    const t12Button = modalContent.querySelector('#talentRangeT12');
+                    const t13Button = modalContent.querySelector('#talentRangeT13');
+                    if (t12Button && t13Button) {
+                        t12Button.addEventListener('click', () => {
+                            talentTierRange = 'T12';
+                            t12Button.classList.remove('bg-gray-300', 'text-gray-700');
+                            t12Button.classList.add('bg-indigo-600', 'text-white');
+                            t13Button.classList.remove('bg-indigo-600', 'text-white');
+                            t13Button.classList.add('bg-gray-300', 'text-gray-700');
+                            if (insightType === 'talent') {
+                                const segment = document.getElementById('insightSegment')?.value || 'team';
+                                analyzeTalentDistribution(segment, talentTierRange);
+                            }
+                        });
+                        
+                        t13Button.addEventListener('click', () => {
+                            talentTierRange = 'T13';
+                            t13Button.classList.remove('bg-gray-300', 'text-gray-700');
+                            t13Button.classList.add('bg-indigo-600', 'text-white');
+                            t12Button.classList.remove('bg-indigo-600', 'text-white');
+                            t12Button.classList.add('bg-gray-300', 'text-gray-700');
+                            if (insightType === 'talent') {
+                                const segment = document.getElementById('insightSegment')?.value || 'team';
+                                analyzeTalentDistribution(segment, talentTierRange);
+                            }
+                        });
+                    }
+
+                    // 분석 실행
+                    const segment = document.getElementById('insightSegment')?.value || 'team';
+                    updateInsightTab(insightType);
+                }, 100);
+            }
+
+            // 모달 닫기 (전역 함수)
+            window.closeInsightModal = function() {
+                const modal = document.getElementById('insightModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    currentModalInsight = null;
+                }
+            }
+
+            // 점수 등급 판정 함수
+            function getScoreGrade(score) {
+                if (score >= 80) return { grade: '우수', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-700', borderColor: 'border-green-300' };
+                if (score >= 60) return { grade: '양호', color: 'blue', bgColor: 'bg-blue-100', textColor: 'text-blue-700', borderColor: 'border-blue-300' };
+                if (score >= 40) return { grade: '주의', color: 'yellow', bgColor: 'bg-yellow-100', textColor: 'text-yellow-700', borderColor: 'border-yellow-300' };
+                if (score >= 20) return { grade: '경고', color: 'orange', bgColor: 'bg-orange-100', textColor: 'text-orange-700', borderColor: 'border-orange-300' };
+                return { grade: '심각', color: 'red', bgColor: 'bg-red-100', textColor: 'text-red-700', borderColor: 'border-red-300' };
+            }
+
+            // 인사이트 카드 생성
+            function createInsightCards() {
+                const grid = document.getElementById('insightCardsGrid');
+                if (!grid) return;
+
+                const insights = [
+                    { 
+                        type: 'capability', 
+                        icon: '📊', 
+                        title: '연봉-능력 괴리 분석', 
+                        desc: '팀/파트/직책별 평균 Tier와 연봉을 비교하여 각 조직의 역량 수준을 파악합니다.',
+                        color: 'indigo', 
+                        status: 'active' 
+                    },
+                    { 
+                        type: 'mismatch', 
+                        icon: '⚠️', 
+                        title: '리더 능력 취약도 분석', 
+                        desc: '직책자(리더, 파트장, AD, TD 등) 중 Tier 4-6인 인원을 팀/파트별로 진단하여 가장 심각한 곳부터 보여줍니다.',
+                        color: 'red', 
+                        status: 'alert', 
+                        alertCount: 0 
+                    },
+                    { 
+                        type: 'concentration', 
+                        icon: '📈', 
+                        title: '역량 집중도', 
+                        desc: '특정 조직에 고Tier 인원이 과도하게 집중되거나 부족한 경우를 분석하여 인력 배치 균형을 점검합니다.',
+                        color: 'yellow', 
+                        status: 'waiting' 
+                    },
+                    { 
+                        type: 'efficiency', 
+                        icon: '💰', 
+                        title: '연봉 효율성', 
+                        desc: 'Tier가 낮은데 연봉이 높은 인원을 찾아 보상 체계의 공정성과 효율성을 점검합니다.',
+                        color: 'green', 
+                        status: 'alert', 
+                        alertCount: 0 
+                    },
+                    { 
+                        type: 'growth', 
+                        icon: '🌱', 
+                        title: '성장 잠재력', 
+                        desc: '신규 입사자 중 고Tier 비율을 분석하여 조직의 성장 잠재력과 채용 품질을 평가합니다.',
+                        color: 'purple', 
+                        status: 'waiting' 
+                    },
+                    { 
+                        type: 'gap', 
+                        icon: '📉', 
+                        title: '목표-실제 역량 괴리 분석', 
+                        desc: '목표 T1-T3 비율 대비 실제 비율을 비교하여 역량 강화가 필요한 조직을 식별합니다.',
+                        color: 'blue', 
+                        status: 'waiting' 
+                    },
+                    { 
+                        type: 'talent', 
+                        icon: '⭐', 
+                        title: '핵심 인재 분포', 
+                        desc: 'T1-T2 핵심 인재가 어느 조직에 얼마나 분포되어 있는지 파악하여 핵심 인력 관리 전략을 수립합니다.',
+                        color: 'orange', 
+                        status: 'waiting' 
+                    },
+                    { 
+                        type: 'experience', 
+                        icon: '👥', 
+                        title: '경력-역량 매칭', 
+                        desc: '근속 기간 대비 Tier 분포를 분석하여 경력에 맞는 성장을 하고 있는지 점검합니다.',
+                        color: 'teal', 
+                        status: 'waiting' 
+                    },
+                    { 
+                        type: 'comprehensive', 
+                        icon: '🎯', 
+                        title: '종합 분석', 
+                        desc: '모든 지표를 종합하여 조직별 건강도 순위를 매기고 개선 우선순위를 제시합니다.',
+                        color: 'gray', 
+                        status: 'waiting' 
+                    }
+                ];
+
+                // 관련 점수 가져오기
+                const scoreMap = {
+                    'capability': null, // 역량 분석은 종합 점수로 대체
+                    'mismatch': null, // 불일치 감지는 Alert 기반
+                    'concentration': null, // 역량 집중도는 별도 계산 필요
+                    'efficiency': parseFloat(document.getElementById('salaryEfficiencyScore')?.textContent) || 0,
+                    'growth': null, // 성장 잠재력은 점수 환산하지 않음 (비교만)
+                    'gap': null, // 역량 격차는 별도 계산 필요
+                    'talent': null, // 핵심 인재 분포는 점수 환산하지 않음 (비교만)
+                    'experience': parseFloat(document.getElementById('experienceMatchScore')?.textContent) || 0,
+                    'comprehensive': parseFloat(document.getElementById('overallHealthScore')?.textContent) || 0
+                };
+                
+                // 비율 정보 가져오기 (점수 환산하지 않는 항목)
+                const ratioMap = {
+                    'growth': parseFloat(document.getElementById('growthPotentialScore')?.textContent) || 0,
+                    'talent': parseFloat(document.getElementById('keyTalentScore')?.textContent) || 0
+                };
+
+                const colorClasses = {
+                    indigo: 'bg-indigo-100',
+                    red: 'bg-red-100',
+                    yellow: 'bg-yellow-100',
+                    green: 'bg-green-100',
+                    purple: 'bg-purple-100',
+                    blue: 'bg-blue-100',
+                    orange: 'bg-orange-100',
+                    teal: 'bg-teal-100',
+                    gray: 'bg-gray-100'
+                };
+
+                grid.innerHTML = insights.map(insight => {
+                    const score = scoreMap[insight.type];
+                    const grade = score !== null ? getScoreGrade(score) : null;
+                    
+                    let statusBadge = '';
+                    // 성장 잠재력과 핵심 인재 분포는 배지 표시 안 함
+                    if (insight.type === 'growth' || insight.type === 'talent') {
+                        statusBadge = '';
+                    } else if (score !== null && !isNaN(score)) {
+                        statusBadge = `<span class="px-2 py-1 ${grade.bgColor} ${grade.textColor} text-xs font-semibold rounded">${score.toFixed(0)}점 (${grade.grade})</span>`;
+                    } else if (insight.status === 'alert') {
+                        statusBadge = `<span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">Alert</span>`;
+                    }
+
+                    return `
+                        <div class="insight-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-lg transition-all duration-300" 
+                             onclick="openInsightModal('${insight.type}')" 
+                             style="transform: translateY(0);">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-12 h-12 ${colorClasses[insight.color]} rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">${insight.icon}</span>
+                                </div>
+                                ${statusBadge}
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">${insight.title}</h3>
+                            <p class="text-sm text-gray-600 mb-4 line-clamp-2">${insight.desc}</p>
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                                <span class="text-xs text-gray-500">클릭하여 상세 분석</span>
+                                <span class="text-indigo-600 font-medium text-sm">보기 →</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Alert 요약 업데이트
+            function updateAlertSummary() {
+                const summary = document.getElementById('alertSummary');
+                const alertSection = document.getElementById('alertSummarySection');
+                if (!summary || !alertSection) return;
+
+                // 실제 Alert 데이터는 updateAlerts()에서 가져옴
+                // 여기서는 간단한 요약만 표시
+                const alertContainer = document.getElementById('alertContainer');
+                if (alertContainer && alertContainer.children.length > 0) {
+                    const alertCount = alertContainer.querySelectorAll('.bg-red-50, .bg-yellow-50').length;
+                    summary.innerHTML = `
+                        <p class="font-semibold text-red-900">주요 Alert: ${alertCount}건</p>
+                        <p class="text-sm text-red-700">자세한 내용은 각 인사이트 카드를 클릭하여 확인하세요.</p>
+                    `;
+                    alertSection.classList.remove('hidden');
+                } else {
+                    // Alert가 없으면 섹션 숨기기
+                    alertSection.classList.add('hidden');
+                }
+            }
+
+            // HR 인사이트 초기화
+            function initializeHRInsights() {
+                // 전체 업데이트 버튼
+                document.getElementById('updateAllInsights')?.addEventListener('click', () => {
+                    updateOverallHealthScore();
+                    updateAlerts();
+                    updateAlertSummary();
+                    // 모든 인사이트 카드 상태 업데이트
+                    createInsightCards();
+                });
+
+                // 모달 업데이트 버튼
+                document.getElementById('updateModalInsight')?.addEventListener('click', () => {
+                    if (currentModalInsight) {
+                        const segment = document.getElementById('insightSegment')?.value || 'team';
+                        updateInsightTab(currentModalInsight);
+                    }
+                    updateOverallHealthScore();
+                    updateAlerts();
+                });
+
+                // ESC 키로 모달 닫기
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        closeInsightModal();
+                    }
+                });
+
+                // 모달 배경 클릭 시 닫기
+                document.getElementById('insightModal')?.addEventListener('click', (e) => {
+                    if (e.target.id === 'insightModal') {
+                        closeInsightModal();
+                    }
+                });
+
+                // 목표 비율 슬라이더 (목표-실제 역량 괴리 분석 모달 내부에서 사용)
+                const slider = document.getElementById('targetRatioSlider');
+                const sliderValue = document.getElementById('targetRatioValue');
+                if (slider && sliderValue) {
+                    slider.addEventListener('input', (e) => {
+                        const value = e.target.value;
+                        sliderValue.textContent = value + '%';
+                        document.getElementById('targetTierRatio').value = value;
+                        if (currentModalInsight === 'gap') {
+                            const segment = document.getElementById('insightSegment')?.value || 'team';
+                            analyzeGap(segment, parseFloat(value));
+                        }
+                    });
+                }
+
+                // 핵심 인재 분포 Tier 범위 선택 버튼
+                const t12Button = document.getElementById('talentRangeT12');
+                const t13Button = document.getElementById('talentRangeT13');
+                if (t12Button && t13Button) {
+                    t12Button.addEventListener('click', () => {
+                        talentTierRange = 'T12';
+                        t12Button.classList.remove('bg-gray-300', 'text-gray-700');
+                        t12Button.classList.add('bg-indigo-600', 'text-white');
+                        t13Button.classList.remove('bg-indigo-600', 'text-white');
+                        t13Button.classList.add('bg-gray-300', 'text-gray-700');
+                        if (currentModalInsight === 'talent') {
+                            const segment = document.getElementById('insightSegment')?.value || 'team';
+                            analyzeTalentDistribution(segment, talentTierRange);
+                        }
+                    });
+                    
+                    t13Button.addEventListener('click', () => {
+                        talentTierRange = 'T13';
+                        t13Button.classList.remove('bg-gray-300', 'text-gray-700');
+                        t13Button.classList.add('bg-indigo-600', 'text-white');
+                        t12Button.classList.remove('bg-indigo-600', 'text-white');
+                        t12Button.classList.add('bg-gray-300', 'text-gray-700');
+                        if (currentModalInsight === 'talent') {
+                            const segment = document.getElementById('insightSegment')?.value || 'team';
+                            analyzeTalentDistribution(segment, talentTierRange);
+                        }
+                    });
+                }
+
+                // 초기 분석 실행
+                updateOverallHealthScore();
+                updateAlerts();
+                updateAlertSummary();
+                // 점수 계산 후 카드 생성 (점수 표시를 위해)
+                createInsightCards();
+            }
+
+            // Segment별 데이터 그룹화
+            function groupEmployeesBySegment(segment) {
+                const groups = {};
+                const baseDate = new Date(
+                    parseInt(baseYear.value),
+                    parseInt(baseMonth.value) - 1,
+                    parseInt(baseDay.value)
+                );
+
+                employees.forEach(emp => {
+                    // 핵심리더팀 제외
+                    if (emp.team === '핵심리더팀') {
+                        return;
+                    }
+
+                    let key = '';
+                    if (segment === 'team') {
+                        key = emp.team || '-';
+                    } else if (segment === 'part') {
+                        key = emp.part || '-';
+                    } else if (segment === 'position') {
+                        key = emp.position || '-';
+                    }
+
+                    if (!groups[key]) {
+                        groups[key] = [];
+                    }
+                    groups[key].push(emp);
+                });
+
+                return groups;
+            }
+
+            // Tier 가중치 계산 (T1=6, T2=5, T3=4, T4=3, T5=2, T6=1)
+            function getTierWeight(tier) {
+                return 7 - tier; // T1=6, T2=5, ..., T6=1
+            }
+
+            // 역량 점수 계산
+            function calculateCapabilityScore(empList) {
+                if (empList.length === 0) return 0;
+                
+                const totalSalary = empList.reduce((sum, emp) => sum + emp.salary, 0);
+                const avgSalary = totalSalary / empList.length;
+                const avgTierWeight = empList.reduce((sum, emp) => sum + getTierWeight(emp.tier), 0) / empList.length;
+                
+                return (avgSalary * avgTierWeight) / 1000000; // 백만원 단위로 정규화
+            }
+
+            // 정렬 상태 저장
+            let capabilitySortColumn = 'score';
+            let capabilitySortOrder = 'desc';
+
+            // 정렬 함수
+            function sortCapabilityData(data, column, order) {
+                const sorted = [...data];
+                sorted.sort((a, b) => {
+                    let aVal, bVal;
+                    switch(column) {
+                        case 'rank':
+                            // 순위는 역량 점수 기준으로 계산
+                            return order === 'asc' ? a.capabilityScore - b.capabilityScore : b.capabilityScore - a.capabilityScore;
+                        case 'segment':
+                            aVal = a.segment;
+                            bVal = b.segment;
+                            if (order === 'asc') {
+                                return aVal.localeCompare(bVal, 'ko');
+                            } else {
+                                return bVal.localeCompare(aVal, 'ko');
+                            }
+                        case 'salary':
+                            aVal = a.avgSalary;
+                            bVal = b.avgSalary;
+                            break;
+                        case 'tier':
+                            aVal = a.avgTierWeight;
+                            bVal = b.avgTierWeight;
+                            break;
+                        case 'score':
+                            aVal = a.capabilityScore;
+                            bVal = b.capabilityScore;
+                            break;
+                        case 'count':
+                            aVal = a.count;
+                            bVal = b.count;
+                            break;
+                        default:
+                            return 0;
+                    }
+                    return order === 'asc' ? aVal - bVal : bVal - aVal;
+                });
+                return sorted;
+            }
+
+            // 정렬 인디케이터 업데이트
+            function updateSortIndicators(column, order) {
+                document.querySelectorAll('[data-sort]').forEach(th => {
+                    const indicator = th.querySelector('.sort-indicator');
+                    if (th.dataset.sort === column) {
+                        th.dataset.order = order;
+                        indicator.textContent = order === 'asc' ? '↑' : '↓';
+                        th.classList.add('bg-indigo-100');
+                    } else {
+                        th.dataset.order = 'asc';
+                        indicator.textContent = '↕';
+                        th.classList.remove('bg-indigo-100');
+                    }
+                });
+            }
+
+            // 테이블 업데이트 함수
+            function updateCapabilityTable(data) {
+                const tbody = document.getElementById('capabilityTableBody');
+                if (tbody) {
+                    tbody.innerHTML = data.map((d, idx) => `
+                        <tr>
+                            <td class="p-2 text-center">
+                                <span class="inline-block w-6 h-6 rounded-full ${idx < 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-600'} text-xs font-semibold text-center leading-6">${idx + 1}</span>
+                            </td>
+                            <td class="p-2">${d.segment}</td>
+                            <td class="text-right p-2">${Math.round(d.avgSalary).toLocaleString()}원</td>
+                            <td class="text-right p-2">${d.avgTierWeight.toFixed(2)}</td>
+                            <td class="text-right p-2 font-semibold text-indigo-600">${Math.round(d.capabilityScore)}</td>
+                            <td class="text-right p-2">${d.count}명</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            // 1. 연봉-능력 괴리 분석
+            function analyzeCapability(segment) {
+                const groups = groupEmployeesBySegment(segment);
+                const segmentData = [];
+
+                Object.keys(groups).forEach(key => {
+                    const empList = groups[key];
+                    const avgSalary = empList.reduce((sum, emp) => sum + emp.salary, 0) / empList.length;
+                    const avgTierWeight = empList.reduce((sum, emp) => sum + getTierWeight(emp.tier), 0) / empList.length;
+                    const capabilityScore = calculateCapabilityScore(empList);
+                    
+                    // Tier 분포 계산
+                    const tierDistribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+                    empList.forEach(emp => {
+                        if (tierDistribution[emp.tier] !== undefined) {
+                            tierDistribution[emp.tier]++;
+                        }
+                    });
+
+                    segmentData.push({
+                        segment: key,
+                        avgSalary,
+                        avgTierWeight,
+                        capabilityScore,
+                        count: empList.length,
+                        tierDistribution
+                    });
+                });
+
+                // 정렬 적용
+                const sortedData = sortCapabilityData(segmentData, capabilitySortColumn, capabilitySortOrder);
+                updateSortIndicators(capabilitySortColumn, capabilitySortOrder);
+
+                // 막대 그래프
+                if (hrCharts.capabilityBar) {
+                    hrCharts.capabilityBar.destroy();
+                }
+                const barCtx = document.getElementById('capabilityBarChart');
+                if (barCtx) {
+                    hrCharts.capabilityBar = new Chart(barCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: sortedData.map(d => d.segment),
+                            datasets: [{
+                                label: '평균 연봉 (만원)',
+                                data: sortedData.map(d => Math.round(d.avgSalary / 10000)),
+                                backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                                borderColor: 'rgba(79, 70, 229, 1)',
+                                borderWidth: 1
+                            }, {
+                                label: '역량 점수',
+                                data: sortedData.map(d => Math.round(d.capabilityScore)),
+                                backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                                borderColor: 'rgba(16, 185, 129, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y1'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: '평균 연봉 (만원)' }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    position: 'right',
+                                    beginAtZero: true,
+                                    title: { display: true, text: '역량 점수' },
+                                    grid: { drawOnChartArea: false }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 드롭다운 업데이트
+                const detailSelect = document.getElementById('capabilityDetailSelect');
+                if (detailSelect) {
+                    detailSelect.innerHTML = '<option value="">전체</option>' + segmentData.map(d => 
+                        `<option value="${d.segment}">${d.segment}</option>`
+                    ).join('');
+                }
+
+                // 파이 차트 업데이트 함수
+                function updateCapabilityPieChart(selectedSegment) {
+                    let targetSegment = selectedSegment || (segmentData.length > 0 ? segmentData[0].segment : null);
+                    if (!targetSegment) return;
+                    
+                    const segment = segmentData.find(d => d.segment === targetSegment);
+                    if (!segment) return;
+
+                    if (hrCharts.capabilityPie) {
+                        hrCharts.capabilityPie.destroy();
+                    }
+                    const pieCtx = document.getElementById('capabilityPieChart');
+                    if (pieCtx) {
+                        hrCharts.capabilityPie = new Chart(pieCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                                datasets: [{
+                                    data: [
+                                        segment.tierDistribution[1],
+                                        segment.tierDistribution[2],
+                                        segment.tierDistribution[3],
+                                        segment.tierDistribution[4],
+                                        segment.tierDistribution[5],
+                                        segment.tierDistribution[6]
+                                    ],
+                                    backgroundColor: [
+                                        'rgba(239, 68, 68, 0.8)',
+                                        'rgba(245, 101, 101, 0.8)',
+                                        'rgba(251, 146, 60, 0.8)',
+                                        'rgba(251, 191, 36, 0.8)',
+                                        'rgba(34, 197, 94, 0.8)',
+                                        'rgba(59, 130, 246, 0.8)'
+                                    ]
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: `${segment.segment} Tier 분포`
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // 초기 파이 차트 표시
+                if (sortedData.length > 0) {
+                    updateCapabilityPieChart();
+                }
+
+                // 드롭다운 이벤트 리스너
+                if (detailSelect) {
+                    detailSelect.addEventListener('change', (e) => {
+                        updateCapabilityPieChart(e.target.value);
+                    });
+                }
+
+                // 테이블 업데이트
+                updateCapabilityTable(sortedData);
+
+                // 정렬 헤더 클릭 이벤트 리스너
+                document.querySelectorAll('[data-sort]').forEach(th => {
+                    th.addEventListener('click', () => {
+                        const column = th.dataset.sort;
+                        const currentOrder = th.dataset.order;
+                        
+                        // 같은 컬럼 클릭 시 정렬 순서 토글
+                        if (column === capabilitySortColumn) {
+                            capabilitySortOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            capabilitySortColumn = column;
+                            capabilitySortOrder = 'asc';
+                        }
+                        
+                        // 정렬 재적용
+                        const reSortedData = sortCapabilityData(segmentData, capabilitySortColumn, capabilitySortOrder);
+                        updateSortIndicators(capabilitySortColumn, capabilitySortOrder);
+                        updateCapabilityTable(reSortedData);
+                        
+                        // 차트도 업데이트
+                        if (hrCharts.capabilityBar) {
+                            hrCharts.capabilityBar.destroy();
+                        }
+                        const barCtx = document.getElementById('capabilityBarChart');
+                        if (barCtx) {
+                            hrCharts.capabilityBar = new Chart(barCtx, {
+                                type: 'bar',
+                                data: {
+                                    labels: reSortedData.map(d => d.segment),
+                                    datasets: [{
+                                        label: '평균 연봉 (만원)',
+                                        data: reSortedData.map(d => Math.round(d.avgSalary / 10000)),
+                                        backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                                        borderColor: 'rgba(79, 70, 229, 1)',
+                                        borderWidth: 1
+                                    }, {
+                                        label: '역량 점수',
+                                        data: reSortedData.map(d => Math.round(d.capabilityScore)),
+                                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                                        borderColor: 'rgba(16, 185, 129, 1)',
+                                        borderWidth: 1,
+                                        yAxisID: 'y1'
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: { display: true, text: '평균 연봉 (만원)' }
+                                        },
+                                        y1: {
+                                            type: 'linear',
+                                            position: 'right',
+                                            beginAtZero: true,
+                                            title: { display: true, text: '역량 점수' },
+                                            grid: { drawOnChartArea: false }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+
+                // Segment 선택 드롭다운 변경 이벤트
+                const segmentSelect = document.getElementById('capabilitySegmentSelect');
+                if (segmentSelect) {
+                    segmentSelect.addEventListener('change', (e) => {
+                        capabilitySortColumn = 'score';
+                        capabilitySortOrder = 'desc';
+                        analyzeCapability(e.target.value);
+                    });
+                }
+            }
+
+            // 2. 리더 능력 취약도 분석
+            function analyzeMismatch() {
+                // 핵심리더팀 제외
+                const filteredEmployees = employees.filter(emp => emp.team !== '핵심리더팀');
+
+                // 직책자 필터링 (리더, 파트장, AD, TD 등)
+                const leaders = filteredEmployees.filter(emp => {
+                    if (!emp.position || emp.position === '-') return false;
+                    return emp.position.includes('리더') || emp.position.includes('파트장') || 
+                           emp.position.includes('AD') || emp.position.includes('TD') ||
+                           emp.position.includes('실장') || emp.position.includes('디렉터');
+                });
+
+                // 직책자 중 Tier 4-6인 인원 찾기 (문제 인원)
+                const problemLeaders = leaders.filter(emp => emp.tier >= 4);
+
+                // 팀/파트별로 문제 직책자 그룹화
+                const mismatchByGroup = {};
+                problemLeaders.forEach(emp => {
+                    const groupKey = emp.part && emp.part !== '-' ? emp.part : emp.team || '-';
+                    if (!mismatchByGroup[groupKey]) {
+                        mismatchByGroup[groupKey] = {
+                            name: groupKey,
+                            totalLeaders: 0,
+                            problemLeaders: [],
+                            tier4Count: 0,
+                            tier5Count: 0,
+                            tier6Count: 0
+                        };
+                    }
+                    mismatchByGroup[groupKey].problemLeaders.push(emp);
+                    if (emp.tier === 4) mismatchByGroup[groupKey].tier4Count++;
+                    if (emp.tier === 5) mismatchByGroup[groupKey].tier5Count++;
+                    if (emp.tier === 6) mismatchByGroup[groupKey].tier6Count++;
+                });
+
+                // 각 그룹의 전체 직책자 수 계산
+                leaders.forEach(emp => {
+                    const groupKey = emp.part && emp.part !== '-' ? emp.part : emp.team || '-';
+                    if (mismatchByGroup[groupKey]) {
+                        mismatchByGroup[groupKey].totalLeaders++;
+                    }
+                });
+
+                // 문제 심각도 순으로 정렬 (Tier 5-6 인원 > Tier 4 인원 > 비율)
+                const sortedGroups = Object.values(mismatchByGroup)
+                    .map(g => ({
+                        ...g,
+                        severeCount: g.tier5Count + g.tier6Count,
+                        problemCount: g.problemLeaders.length,
+                        problemRatio: g.totalLeaders > 0 ? (g.problemLeaders.length / g.totalLeaders) * 100 : 0
+                    }))
+                    .sort((a, b) => {
+                        // Tier 5-6 인원 수 우선
+                        if (b.severeCount !== a.severeCount) return b.severeCount - a.severeCount;
+                        // 전체 문제 인원 수
+                        if (b.problemCount !== a.problemCount) return b.problemCount - a.problemCount;
+                        // 문제 비율
+                        return b.problemRatio - a.problemRatio;
+                    });
+
+                // 막대 그래프 (문제 직책자 수 by 팀/파트)
+                if (hrCharts.mismatchHeatmap) {
+                    hrCharts.mismatchHeatmap.destroy();
+                }
+                const heatmapCtx = document.getElementById('mismatchHeatmapChart');
+                if (heatmapCtx && sortedGroups.length > 0) {
+                    hrCharts.mismatchHeatmap = new Chart(heatmapCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: sortedGroups.map(g => g.name),
+                            datasets: [
+                                {
+                                    label: 'Tier 5-6 (심각)',
+                                    data: sortedGroups.map(g => g.tier5Count + g.tier6Count),
+                                    backgroundColor: 'rgba(239, 68, 68, 0.8)'
+                                },
+                                {
+                                    label: 'Tier 4 (주의)',
+                                    data: sortedGroups.map(g => g.tier4Count),
+                                    backgroundColor: 'rgba(251, 191, 36, 0.8)'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            scales: {
+                                x: { 
+                                    stacked: true,
+                                    beginAtZero: true,
+                                    title: { display: true, text: '문제 직책자 수' }
+                                },
+                                y: { stacked: true }
+                            },
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: '팀/파트별 저Tier 직책자 분포 (심각도 순)' }
+                            }
+                        }
+                    });
+                }
+
+                // Alert 리스트
+                const alertList = document.getElementById('mismatchAlertList');
+                if (alertList) {
+                    if (problemLeaders.length === 0) {
+                        alertList.innerHTML = '<div class="text-green-600 p-2 bg-green-50 rounded">✅ 모든 직책자의 Tier가 적정 수준(T1-T3)입니다.</div>';
+                    } else {
+                        let html = `<div class="mb-3 p-3 bg-gray-100 rounded text-sm">
+                            <strong>📊 전체 현황:</strong> 총 ${leaders.length}명의 직책자 중 ${problemLeaders.length}명(${((problemLeaders.length/leaders.length)*100).toFixed(1)}%)이 Tier 4 이하
+                        </div>`;
+                        
+                        sortedGroups.forEach((group, idx) => {
+                            const severityClass = group.severeCount > 0 ? 'bg-red-50 border-red-300' : 'bg-yellow-50 border-yellow-300';
+                            const severityIcon = group.severeCount > 0 ? '🚨' : '⚠️';
+                            
+                            html += `
+                                <div class="mb-3 p-3 rounded border ${severityClass}">
+                                    <div class="font-semibold text-gray-800 mb-2">
+                                        ${severityIcon} ${idx + 1}순위: ${group.name} 
+                                        <span class="text-sm font-normal">(문제 ${group.problemCount}명 / 전체 직책자 ${group.totalLeaders}명)</span>
+                                    </div>
+                                    <div class="flex gap-2 mb-2">
+                                        ${group.tier6Count > 0 ? `<span class="px-2 py-1 bg-red-200 text-red-800 text-xs rounded">T6: ${group.tier6Count}명</span>` : ''}
+                                        ${group.tier5Count > 0 ? `<span class="px-2 py-1 bg-red-200 text-red-800 text-xs rounded">T5: ${group.tier5Count}명</span>` : ''}
+                                        ${group.tier4Count > 0 ? `<span class="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded">T4: ${group.tier4Count}명</span>` : ''}
+                                    </div>
+                                    <div class="text-sm text-gray-600 space-y-1">
+                                        ${group.problemLeaders.map(emp => `
+                                            <div>• ${emp.name} (${emp.position}, T${emp.tier})</div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        alertList.innerHTML = html;
+                    }
+                }
+            }
+
+            // 3. 역량 집중도 분석
+            function analyzeConcentration(segment) {
+                const groups = groupEmployeesBySegment(segment);
+                const concentrationData = [];
+
+                Object.keys(groups).sort().forEach(key => {
+                    const empList = groups[key];
+                    const tierCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+                    empList.forEach(emp => {
+                        if (tierCounts[emp.tier] !== undefined) {
+                            tierCounts[emp.tier]++;
+                        }
+                    });
+
+                    const t123Ratio = ((tierCounts[1] + tierCounts[2] + tierCounts[3]) / empList.length * 100);
+                    const t456Ratio = ((tierCounts[4] + tierCounts[5] + tierCounts[6]) / empList.length * 100);
+                    
+                    // 표준편차 계산 (집중도 측정)
+                    const tierValues = Object.values(tierCounts);
+                    const mean = tierValues.reduce((a, b) => a + b, 0) / tierValues.length;
+                    const variance = tierValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / tierValues.length;
+                    const stdDev = Math.sqrt(variance);
+                    const concentration = stdDev / mean; // 변동계수
+
+                    concentrationData.push({
+                        segment: key,
+                        t123Ratio,
+                        t456Ratio,
+                        concentration,
+                        tierDistribution: tierCounts,
+                        count: empList.length
+                    });
+                });
+
+                // 레이더 차트
+                if (hrCharts.concentrationRadar) {
+                    hrCharts.concentrationRadar.destroy();
+                }
+                const radarCtx = document.getElementById('concentrationRadarChart');
+                if (radarCtx && concentrationData.length > 0) {
+                    const maxDataPoints = Math.min(5, concentrationData.length);
+                    const selectedData = concentrationData.slice(0, maxDataPoints);
+                    
+                    hrCharts.concentrationRadar = new Chart(radarCtx, {
+                        type: 'radar',
+                        data: {
+                            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                            datasets: selectedData.map((d, idx) => ({
+                                label: d.segment,
+                                data: [
+                                    d.tierDistribution[1],
+                                    d.tierDistribution[2],
+                                    d.tierDistribution[3],
+                                    d.tierDistribution[4],
+                                    d.tierDistribution[5],
+                                    d.tierDistribution[6]
+                                ],
+                                borderColor: `hsl(${idx * 60}, 70%, 50%)`,
+                                backgroundColor: `hsla(${idx * 60}, 70%, 50%, 0.2)`
+                            }))
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: { beginAtZero: true }
+                            }
+                        }
+                    });
+                }
+
+                // Alert 리스트
+                const alertList = document.getElementById('concentrationAlertList');
+                if (alertList) {
+                    const highConcentration = concentrationData.filter(d => d.t123Ratio >= 50);
+                    const lowConcentration = concentrationData.filter(d => d.t123Ratio < 15);
+                    
+                    let alerts = [];
+                    if (highConcentration.length > 0) {
+                        alerts.push(...highConcentration.map(d => `
+                            <div class="text-yellow-600 p-2 bg-yellow-50 rounded border border-yellow-200">
+                                ⚠️ <strong>${d.segment}</strong>: 역량이 과도하게 집중됨 (T1-T3 비율: ${d.t123Ratio.toFixed(1)}%)
+                            </div>
+                        `));
+                    }
+                    if (lowConcentration.length > 0) {
+                        alerts.push(...lowConcentration.map(d => `
+                            <div class="text-red-600 p-2 bg-red-50 rounded border border-red-200">
+                                ⚠️ <strong>${d.segment}</strong>: 역량 부족 (T1-T3 비율: ${d.t123Ratio.toFixed(1)}%)
+                            </div>
+                        `));
+                    }
+                    if (alerts.length === 0) {
+                        alerts.push('<div class="text-green-600 p-2 bg-green-50 rounded">✅ 모든 Segment의 역량 분포가 적정합니다.</div>');
+                    }
+                    alertList.innerHTML = alerts.join('');
+                }
+            }
+
+            // 4. 연봉 효율성 분석 (Tier가 낮은데 연봉이 높은 인원 찾기)
+            function analyzeEfficiency(segment) {
+                const groups = groupEmployeesBySegment(segment);
+                const efficiencyData = [];
+                
+                // 전체 평균 연봉 계산 (비교 기준)
+                const allEmployees = Object.values(groups).flat();
+                const overallAvgSalary = allEmployees.reduce((sum, emp) => sum + emp.salary, 0) / allEmployees.length;
+
+                Object.keys(groups).sort().forEach(key => {
+                    const empList = groups[key];
+                    const avgSalary = empList.reduce((sum, emp) => sum + emp.salary, 0) / empList.length;
+                    const avgTierWeight = empList.reduce((sum, emp) => sum + getTierWeight(emp.tier), 0) / empList.length;
+                    
+                    // Tier 5-6인데 연봉이 높은 인원 찾기 (상세 정보 포함)
+                    const lowTierHighSalary = empList.filter(emp => {
+                        return (emp.tier >= 5) && (emp.salary > avgSalary || emp.salary > overallAvgSalary);
+                    }).map(emp => {
+                        // Segment 평균 대비 비율 계산
+                        const segmentDiff = emp.salary - avgSalary;
+                        const segmentPercent = avgSalary > 0 ? (segmentDiff / avgSalary) * 100 : 0;
+                        
+                        // 전체 평균 대비 비율 계산
+                        const overallDiff = emp.salary - overallAvgSalary;
+                        const overallPercent = overallAvgSalary > 0 ? (overallDiff / overallAvgSalary) * 100 : 0;
+                        
+                        // 괴리도 계산 (연봉 - 평균 연봉의 최대값)
+                        const gap = Math.max(segmentDiff, overallDiff);
+                        const gapPercent = Math.max(segmentPercent, overallPercent);
+                        
+                        return {
+                            ...emp,
+                            segmentAvg: avgSalary,
+                            overallAvg: overallAvgSalary,
+                            segmentDiff,
+                            segmentPercent,
+                            overallDiff,
+                            overallPercent,
+                            gap,
+                            gapPercent
+                        };
+                    });
+
+                    efficiencyData.push({
+                        segment: key,
+                        avgSalary,
+                        avgTierWeight,
+                        count: empList.length,
+                        lowTierHighSalary: lowTierHighSalary,
+                        alertCount: lowTierHighSalary.length
+                    });
+                });
+
+                // 버블 차트 (Tier 가중치 vs 평균 연봉)
+                if (hrCharts.efficiencyBubble) {
+                    hrCharts.efficiencyBubble.destroy();
+                }
+                const bubbleCtx = document.getElementById('efficiencyBubbleChart');
+                if (bubbleCtx) {
+                    hrCharts.efficiencyBubble = new Chart(bubbleCtx, {
+                        type: 'bubble',
+                        data: {
+                            datasets: [{
+                                label: 'Segment별 분포',
+                                data: efficiencyData.map(d => ({
+                                    x: d.avgTierWeight,
+                                    y: d.avgSalary / 10000,
+                                    r: Math.sqrt(d.count) * 3
+                                })),
+                                backgroundColor: efficiencyData.map(d => 
+                                    d.alertCount > 0 ? 'rgba(239, 68, 68, 0.6)' : 
+                                    d.avgTierWeight < 3 && d.avgSalary > overallAvgSalary ? 'rgba(251, 191, 36, 0.6)' : 
+                                    'rgba(34, 197, 94, 0.6)'
+                                )
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    title: { display: true, text: '평균 Tier 가중치' }
+                                },
+                                y: {
+                                    title: { display: true, text: '평균 연봉 (만원)' }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const idx = context.dataIndex;
+                                            const d = efficiencyData[idx];
+                                            return `${d.segment}: 평균 연봉 ${Math.round(d.avgSalary).toLocaleString()}원, Alert ${d.alertCount}명`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 파트 필터 드롭다운 업데이트
+                const partFilter = document.getElementById('efficiencyPartFilter');
+                if (partFilter) {
+                    const parts = [...new Set(efficiencyData.map(d => d.segment))].sort();
+                    partFilter.innerHTML = '<option value="">전체</option>' + parts.map(part => 
+                        `<option value="${part}">${part}</option>`
+                    ).join('');
+                }
+
+                // 테이블 업데이트
+                const tbody = document.getElementById('efficiencyTableBody');
+                if (tbody) {
+                    let tableHTML = '';
+                    efficiencyData.forEach(d => {
+                        tableHTML += `
+                            <tr class="${d.alertCount > 0 ? 'bg-red-50' : ''}">
+                                <td class="p-2">${d.segment}</td>
+                                <td class="text-right p-2">${Math.round(d.avgSalary).toLocaleString()}원</td>
+                                <td class="text-right p-2">${d.avgTierWeight.toFixed(2)}</td>
+                                <td class="text-right p-2 font-semibold ${d.alertCount > 0 ? 'text-red-600' : 'text-green-600'}">
+                                    ${d.alertCount}명
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = tableHTML;
+                }
+
+                // Alert 리스트 업데이트 함수
+                function updateEfficiencyAlertList() {
+                    const selectedPart = partFilter ? partFilter.value : '';
+                    const sortOrder = document.getElementById('efficiencySortOrder')?.value || 'desc';
+                    
+                    // 모든 Alert 인원 수집
+                    let allAlerts = [];
+                    efficiencyData.forEach(d => {
+                        if (selectedPart && d.segment !== selectedPart) return;
+                        d.lowTierHighSalary.forEach(emp => {
+                            allAlerts.push({
+                                ...emp,
+                                segment: d.segment
+                            });
+                        });
+                    });
+
+                    // 괴리도 기준으로 정렬
+                    allAlerts.sort((a, b) => {
+                        return sortOrder === 'desc' ? b.gapPercent - a.gapPercent : a.gapPercent - b.gapPercent;
+                    });
+
+                    // Alert HTML 생성
+                    const alertList = document.getElementById('efficiencyAlertList');
+                    if (alertList) {
+                        if (allAlerts.length === 0) {
+                            alertList.innerHTML = '<div class="text-green-600 p-2 bg-green-50 rounded">✅ Tier 대비 연봉이 적정한 인원만 있습니다.</div>';
+                        } else {
+                            // 파트별로 그룹화
+                            const alertsByPart = {};
+                            allAlerts.forEach(alert => {
+                                if (!alertsByPart[alert.segment]) {
+                                    alertsByPart[alert.segment] = [];
+                                }
+                                alertsByPart[alert.segment].push(alert);
+                            });
+
+                            let alertHTML = '';
+                            Object.keys(alertsByPart).sort().forEach(part => {
+                                const partAlerts = alertsByPart[part];
+                                alertHTML += `
+                                    <div class="p-3 bg-red-50 rounded border border-red-200 mb-3">
+                                        <div class="font-semibold text-red-800 mb-2">${part} (${partAlerts.length}명)</div>
+                                        <div class="space-y-1">
+                                            ${partAlerts.map(emp => {
+                                                const tierWeight = getTierWeight(emp.tier);
+                                                const segmentPercentText = emp.segmentPercent > 0 ? `파트 평균 대비 +${emp.segmentPercent.toFixed(1)}%` : '';
+                                                const overallPercentText = emp.overallPercent > 0 ? `전체 평균 대비 +${emp.overallPercent.toFixed(1)}%` : '';
+                                                const percentTexts = [segmentPercentText, overallPercentText].filter(t => t).join(', ');
+                                                
+                                                return `
+                                                    <div class="text-sm text-red-700 pl-4 mb-1">
+                                                        ⚠️ <strong>${emp.name}</strong> - Tier ${emp.tier} (가중치 ${tierWeight}) | 
+                                                        연봉 ${Math.round(emp.salary).toLocaleString()}원
+                                                        ${percentTexts ? ` | ${percentTexts}` : ''}
+                                                        <span class="text-red-900 font-semibold"> (괴리도: ${emp.gapPercent.toFixed(1)}%)</span>
+                                                    </div>
+                                                `;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            alertList.innerHTML = alertHTML;
+                        }
+                    }
+                }
+
+                // 초기 Alert 리스트 업데이트
+                updateEfficiencyAlertList();
+
+                // 파트 필터 변경 이벤트
+                if (partFilter) {
+                    partFilter.addEventListener('change', updateEfficiencyAlertList);
+                }
+
+                // 정렬 순서 변경 이벤트
+                const sortOrderSelect = document.getElementById('efficiencySortOrder');
+                if (sortOrderSelect) {
+                    sortOrderSelect.addEventListener('change', updateEfficiencyAlertList);
+                }
+            }
+
+            // 5. 성장 잠재력 분석 (수정: 신규 인원인데 Tier가 높은 경우)
+            function analyzeGrowthPotential(segment) {
+                const groups = groupEmployeesBySegment(segment);
+                const baseDate = new Date(
+                    parseInt(baseYear.value),
+                    parseInt(baseMonth.value) - 1,
+                    parseInt(baseDay.value)
+                );
+                const growthData = [];
+
+                Object.keys(groups).sort().forEach(key => {
+                    const empList = groups[key];
+                    
+                    // 신규 인원 중 Tier가 높은 인원 찾기 (T1-T3)
+                    const highTierNewEmployees = empList.filter(emp => {
+                        const joinDate = new Date(emp.joinDate);
+                        const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                         (baseDate.getMonth() - joinDate.getMonth());
+                        const isNew = monthsDiff <= 12; // 12개월 이내
+                        return isNew && emp.tier <= 3;
+                    });
+
+                    const growthPotential = (highTierNewEmployees.length / empList.length) * 100;
+
+                    // Level 분포 계산
+                    const levelDistribution = {L1: 0, L2: 0, L3: 0};
+                    empList.forEach(emp => {
+                        const joinDate = new Date(emp.joinDate);
+                        const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                         (baseDate.getMonth() - joinDate.getMonth());
+                        let level = 'L1';
+                        if (monthsDiff >= 12) level = 'L3';
+                        else if (monthsDiff >= 6) level = 'L2';
+                        levelDistribution[level]++;
+                    });
+
+                    growthData.push({
+                        segment: key,
+                        growthPotential,
+                        highTierNewCount: highTierNewEmployees.length,
+                        totalCount: empList.length,
+                        levelDistribution
+                    });
+                });
+
+                // 스택 바 차트
+                if (hrCharts.growthStack) {
+                    hrCharts.growthStack.destroy();
+                }
+                const stackCtx = document.getElementById('growthStackChart');
+                if (stackCtx) {
+                    hrCharts.growthStack = new Chart(stackCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: growthData.map(d => d.segment),
+                            datasets: [
+                                {
+                                    label: 'L1',
+                                    data: growthData.map(d => d.levelDistribution.L1),
+                                    backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                                },
+                                {
+                                    label: 'L2',
+                                    data: growthData.map(d => d.levelDistribution.L2),
+                                    backgroundColor: 'rgba(34, 197, 94, 0.8)'
+                                },
+                                {
+                                    label: 'L3',
+                                    data: growthData.map(d => d.levelDistribution.L3),
+                                    backgroundColor: 'rgba(251, 191, 36, 0.8)'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: { stacked: true },
+                                y: { stacked: true }
+                            }
+                        }
+                    });
+                }
+
+                // 성장 잠재력 리스트
+                const growthList = document.getElementById('growthPotentialList');
+                if (growthList) {
+                    const sortedData = [...growthData].sort((a, b) => b.growthPotential - a.growthPotential);
+                    growthList.innerHTML = sortedData.slice(0, 5).map(d => `
+                        <div class="p-3 bg-blue-50 rounded border border-blue-200">
+                            <div class="font-semibold text-blue-800">${d.segment}</div>
+                            <div class="text-sm text-blue-600 mt-1">
+                                성장 잠재력: ${d.growthPotential.toFixed(1)}% | 
+                                신규 고Tier 인원: ${d.highTierNewCount}명 / 전체 ${d.totalCount}명
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // 6. 역량 격차 분석
+            function analyzeGap(segment, targetRatio) {
+                const groups = groupEmployeesBySegment(segment);
+                const gapData = [];
+
+                Object.keys(groups).sort().forEach(key => {
+                    const empList = groups[key];
+                    const tierCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+                    empList.forEach(emp => {
+                        if (tierCounts[emp.tier] !== undefined) {
+                            tierCounts[emp.tier]++;
+                        }
+                    });
+
+                    const actualT123Ratio = ((tierCounts[1] + tierCounts[2] + tierCounts[3]) / empList.length * 100);
+                    const gap = actualT123Ratio - targetRatio;
+
+                    gapData.push({
+                        segment: key,
+                        targetRatio,
+                        actualT123Ratio,
+                        gap,
+                        count: empList.length
+                    });
+                });
+
+                // 비교 막대 그래프
+                if (hrCharts.gapComparison) {
+                    hrCharts.gapComparison.destroy();
+                }
+                const gapCtx = document.getElementById('gapComparisonChart');
+                if (gapCtx) {
+                    hrCharts.gapComparison = new Chart(gapCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: gapData.map(d => d.segment),
+                            datasets: [
+                                {
+                                    label: '목표 T1-T3 비율',
+                                    data: gapData.map(d => d.targetRatio),
+                                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                                    borderColor: 'rgba(59, 130, 246, 1)',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: '실제 T1-T3 비율',
+                                    data: gapData.map(d => d.actualT123Ratio),
+                                    backgroundColor: gapData.map(d => 
+                                        d.gap >= 0 ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.6)'
+                                    ),
+                                    borderColor: gapData.map(d => 
+                                        d.gap >= 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'
+                                    ),
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    title: { display: true, text: '비율 (%)' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 제안 리스트
+                const recommendations = document.getElementById('gapRecommendations');
+                if (recommendations) {
+                    const negativeGap = gapData.filter(d => d.gap < -5).sort((a, b) => a.gap - b.gap);
+                    recommendations.innerHTML = negativeGap.map(d => `
+                        <div class="p-3 bg-red-50 rounded border border-red-200">
+                            <div class="font-semibold text-red-800">${d.segment}</div>
+                            <div class="text-sm text-red-600 mt-1">
+                                목표 대비 ${Math.abs(d.gap).toFixed(1)}%p 부족 | 
+                                역량 강화 프로그램 추천
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // 7. 핵심 인재 분포 분석
+            function analyzeTalentDistribution(segment, tierRange = 'T12') {
+                const groups = groupEmployeesBySegment(segment);
+                const talentData = [];
+
+                Object.keys(groups).sort().forEach(key => {
+                    const empList = groups[key];
+                    // T1-T2 또는 T1-T3 선택
+                    const talentCount = tierRange === 'T13' 
+                        ? empList.filter(emp => emp.tier <= 3).length
+                        : empList.filter(emp => emp.tier <= 2).length;
+
+                    talentData.push({
+                        segment: key,
+                        talentCount,
+                        totalCount: empList.length
+                    });
+                });
+
+                // 핵심 인재 수 기준으로 정렬 (내림차순)
+                const sortedData = [...talentData].sort((a, b) => b.talentCount - a.talentCount);
+
+                // 막대 그래프 (절대 수 표시)
+                if (hrCharts.talentTreemap) {
+                    hrCharts.talentTreemap.destroy();
+                }
+                const talentCtx = document.getElementById('talentTreemapChart');
+                if (talentCtx) {
+                    const rangeLabel = tierRange === 'T13' ? 'T1-T3' : 'T1-T2';
+                    hrCharts.talentTreemap = new Chart(talentCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: sortedData.map(d => d.segment),
+                            datasets: [{
+                                label: `핵심 인재 수 (${rangeLabel})`,
+                                data: sortedData.map(d => d.talentCount),
+                                backgroundColor: sortedData.map((d, idx) => 
+                                    idx < 3 ? 'rgba(34, 197, 94, 0.6)' : 
+                                    idx < 6 ? 'rgba(251, 191, 36, 0.6)' : 
+                                    'rgba(239, 68, 68, 0.6)'
+                                )
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: `핵심 인재 수 (${rangeLabel})` }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 순위별 리스트
+                const recommendations = document.getElementById('talentRecommendations');
+                if (recommendations) {
+                    const rangeLabel = tierRange === 'T13' ? 'T1-T3' : 'T1-T2';
+                    let recs = [];
+                    recs.push(`<div class="text-sm font-semibold mb-2">📊 핵심 인재 분포 순위 (${rangeLabel} 기준)</div>`);
+                    
+                    sortedData.forEach((d, idx) => {
+                        const rank = idx + 1;
+                        const badgeColor = rank <= 3 ? 'bg-green-100 text-green-800' : 
+                                         rank <= 6 ? 'bg-yellow-100 text-yellow-800' : 
+                                         'bg-gray-100 text-gray-800';
+                        recs.push(`
+                            <div class="p-3 bg-white rounded border border-gray-200 mb-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <span class="px-2 py-1 rounded text-xs font-semibold ${badgeColor} mr-2">${rank}위</span>
+                                        <span class="font-semibold">${d.segment}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold text-indigo-600">${d.talentCount}명</div>
+                                        <div class="text-xs text-gray-500">전체 ${d.totalCount}명 중</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                    
+                    recommendations.innerHTML = recs.join('');
+                }
+            }
+
+            // 8. 경력-역량 매칭도 분석
+            function analyzeExperienceMatch() {
+                const baseDate = new Date(
+                    parseInt(baseYear.value),
+                    parseInt(baseMonth.value) - 1,
+                    parseInt(baseDay.value)
+                );
+
+                // 핵심리더팀 제외
+                const filteredEmployees = employees.filter(emp => emp.team !== '핵심리더팀');
+
+                // 경력 구간별 Tier 매트릭스 (더 상세한 구간)
+                const experienceTierMatrix = {
+                    '0-6개월': {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+                    '6-12개월': {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+                    '12-18개월': {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+                    '18-24개월': {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+                    '24개월 이상': {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+                };
+
+                filteredEmployees.forEach(emp => {
+                    const joinDate = new Date(emp.joinDate);
+                    const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                     (baseDate.getMonth() - joinDate.getMonth());
+                    
+                    let experienceRange = '0-6개월';
+                    if (monthsDiff >= 24) {
+                        experienceRange = '24개월 이상';
+                    } else if (monthsDiff >= 18) {
+                        experienceRange = '18-24개월';
+                    } else if (monthsDiff >= 12) {
+                        experienceRange = '12-18개월';
+                    } else if (monthsDiff >= 6) {
+                        experienceRange = '6-12개월';
+                    }
+                    
+                    if (experienceTierMatrix[experienceRange] && experienceTierMatrix[experienceRange][emp.tier] !== undefined) {
+                        experienceTierMatrix[experienceRange][emp.tier]++;
+                    }
+                });
+
+                // 경력이 많은데 Tier가 낮은 인원 찾기 (24개월 이상, Tier 5-6)
+                const mismatches = filteredEmployees.filter(emp => {
+                    const joinDate = new Date(emp.joinDate);
+                    const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                     (baseDate.getMonth() - joinDate.getMonth());
+                    return monthsDiff >= 24 && emp.tier >= 5;
+                });
+
+                // 경력 구간 순서 정의
+                const experienceRanges = ['0-6개월', '6-12개월', '12-18개월', '18-24개월', '24개월 이상'];
+
+                // 히트맵 차트
+                if (hrCharts.experienceHeatmap) {
+                    hrCharts.experienceHeatmap.destroy();
+                }
+                const expCtx = document.getElementById('experienceHeatmapChart');
+                if (expCtx) {
+                    hrCharts.experienceHeatmap = new Chart(expCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: experienceRanges,
+                            datasets: [1, 2, 3, 4, 5, 6].map(tier => ({
+                                label: `T${tier}`,
+                                data: experienceRanges.map(range => 
+                                    experienceTierMatrix[range][tier] || 0
+                                ),
+                                backgroundColor: tier <= 3 ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.6)'
+                            }))
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: { stacked: true },
+                                y: { stacked: true }
+                            }
+                        }
+                    });
+                }
+
+                // 상세 분석 테이블
+                const alerts = document.getElementById('experienceAlerts');
+                if (alerts) {
+                    let analysisHTML = '<div class="text-sm font-semibold mb-3">📊 경력 구간별 Tier 분포 상세 분석</div>';
+                    
+                    // 각 경력 구간별 분석
+                    experienceRanges.forEach(range => {
+                        const tierData = experienceTierMatrix[range];
+                        const total = Object.values(tierData).reduce((sum, val) => sum + val, 0);
+                        const t123Count = (tierData[1] || 0) + (tierData[2] || 0) + (tierData[3] || 0);
+                        const t456Count = (tierData[4] || 0) + (tierData[5] || 0) + (tierData[6] || 0);
+                        const t123Ratio = total > 0 ? ((t123Count / total) * 100).toFixed(1) : 0;
+                        
+                        analysisHTML += `
+                            <div class="p-3 bg-white rounded border border-gray-200 mb-3">
+                                <div class="font-semibold text-gray-800 mb-2">${range} (총 ${total}명)</div>
+                                <div class="grid grid-cols-6 gap-2 text-xs mb-2">
+                                    <div>T1: ${tierData[1] || 0}명</div>
+                                    <div>T2: ${tierData[2] || 0}명</div>
+                                    <div>T3: ${tierData[3] || 0}명</div>
+                                    <div>T4: ${tierData[4] || 0}명</div>
+                                    <div>T5: ${tierData[5] || 0}명</div>
+                                    <div>T6: ${tierData[6] || 0}명</div>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-green-600 font-semibold">T1-T3: ${t123Count}명 (${t123Ratio}%)</span> | 
+                                    <span class="text-red-600">T4-T6: ${t456Count}명 (${(100 - parseFloat(t123Ratio)).toFixed(1)}%)</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // 불일치 인원 리스트
+                    if (mismatches.length === 0) {
+                        analysisHTML += '<div class="text-green-600 p-2 bg-green-50 rounded mt-3">✅ 경력-역량 매칭이 적정합니다.</div>';
+                    } else {
+                        analysisHTML += '<div class="text-sm font-semibold mt-4 mb-2">⚠️ 경력 대비 Tier가 낮은 인원 (24개월 이상, Tier 5-6)</div>';
+                        mismatches.slice(0, 10).forEach(emp => {
+                            const joinDate = new Date(emp.joinDate);
+                            const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                             (baseDate.getMonth() - joinDate.getMonth());
+                            analysisHTML += `
+                                <div class="text-yellow-600 p-2 bg-yellow-50 rounded border border-yellow-200 mb-2">
+                                    ⚠️ <strong>${emp.name}</strong> - 경력 ${monthsDiff}개월 (Tier ${emp.tier}) | ${emp.team || '-'} / ${emp.part || '-'}
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    alerts.innerHTML = analysisHTML;
+                }
+            }
+
+            // 9. 종합 분석
+            function analyzeComprehensive(segment) {
+                const baseDate = new Date(
+                    parseInt(baseYear.value),
+                    parseInt(baseMonth.value) - 1,
+                    parseInt(baseDay.value)
+                );
+                
+                const groups = groupEmployeesBySegment(segment);
+                const comprehensiveData = [];
+                
+                // 전체 평균 연봉 계산 (비교 기준)
+                const allEmployees = Object.values(groups).flat();
+                const overallAvgSalary = allEmployees.reduce((sum, emp) => sum + emp.salary, 0) / allEmployees.length;
+
+                Object.keys(groups).sort().forEach(key => {
+                    const empList = groups[key];
+                    
+                    // 각 지표 계산
+                    const tierCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+                    empList.forEach(emp => {
+                        if (tierCounts[emp.tier] !== undefined) {
+                            tierCounts[emp.tier]++;
+                        }
+                    });
+
+                    const t123Ratio = ((tierCounts[1] + tierCounts[2] + tierCounts[3]) / empList.length * 100);
+                    
+                    // 연봉 효율성: Alert 비율 기반 점수 계산
+                    // Tier 5-6인데 전체 평균 연봉보다 높은 인원
+                    const lowTierHighSalaryCount = empList.filter(emp => {
+                        return (emp.tier >= 5) && (emp.salary > overallAvgSalary);
+                    }).length;
+                    const lowTierHighSalaryRatio = (lowTierHighSalaryCount / empList.length) * 100;
+                    // Alert 비율이 낮을수록 좋음: 0% = 100점, 50% = 0점 (선형 감소)
+                    const efficiencyScore = Math.max(0, Math.min(100, 100 - (lowTierHighSalaryRatio * 2)));
+                    
+                    // 경력-역량 매칭: Alert 비율 기반 점수 계산
+                    // 24개월 이상 근무했는데 Tier 5-6인 인원
+                    const experiencedLowTier = empList.filter(emp => {
+                        const joinDate = new Date(emp.joinDate);
+                        const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                         (baseDate.getMonth() - joinDate.getMonth());
+                        return monthsDiff >= 24 && emp.tier >= 5;
+                    }).length;
+                    const experiencedLowTierRatio = (experiencedLowTier / empList.length) * 100;
+                    // Alert 비율이 낮을수록 좋음: 0% = 100점, 40% = 0점 (선형 감소)
+                    const experienceMatchScore = Math.max(0, Math.min(100, 100 - (experiencedLowTierRatio * 2.5)));
+
+                    // 종합 점수 계산 (성장 잠재력과 핵심 인재 분포 제외)
+                    const tierScore = Math.min(100, (t123Ratio / 30) * 100); // 30% 기준
+                    const comprehensiveScore = (
+                        tierScore * 0.5 +
+                        efficiencyScore * 0.3 +
+                        experienceMatchScore * 0.2
+                    );
+
+                    comprehensiveData.push({
+                        segment: key,
+                        comprehensiveScore,
+                        tierScore,
+                        efficiencyScore,
+                        t123Ratio,
+                        count: empList.length
+                    });
+                });
+
+                // 순위 차트
+                if (hrCharts.comprehensiveRanking) {
+                    hrCharts.comprehensiveRanking.destroy();
+                }
+                const rankCtx = document.getElementById('comprehensiveRankingChart');
+                if (rankCtx) {
+                    const sortedData = [...comprehensiveData].sort((a, b) => b.comprehensiveScore - a.comprehensiveScore);
+                    hrCharts.comprehensiveRanking = new Chart(rankCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: sortedData.map(d => d.segment),
+                            datasets: [{
+                                label: '종합 점수',
+                                data: sortedData.map(d => d.comprehensiveScore),
+                                backgroundColor: sortedData.map(d => 
+                                    d.comprehensiveScore >= 70 ? 'rgba(34, 197, 94, 0.6)' : 
+                                    d.comprehensiveScore >= 50 ? 'rgba(251, 191, 36, 0.6)' : 
+                                    'rgba(239, 68, 68, 0.6)'
+                                )
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 개선 우선순위
+                const priority = document.getElementById('improvementPriority');
+                if (priority) {
+                    const sortedData = [...comprehensiveData].sort((a, b) => a.comprehensiveScore - b.comprehensiveScore);
+                    priority.innerHTML = sortedData.slice(0, 5).map((d, idx) => `
+                        <div class="p-3 bg-gray-50 rounded border mb-2">
+                            <div class="font-semibold">${idx + 1}순위: ${d.segment}</div>
+                            <div class="text-sm text-gray-600 mt-1">
+                                종합 점수: ${d.comprehensiveScore.toFixed(1)} | 
+                                T1-T3 비율: ${d.t123Ratio.toFixed(1)}% | 
+                                인원: ${d.count}명
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // 조직 건강도 종합 점수 계산
+            function updateOverallHealthScore() {
+                const baseDate = new Date(
+                    parseInt(baseYear.value),
+                    parseInt(baseMonth.value) - 1,
+                    parseInt(baseDay.value)
+                );
+
+                // 핵심리더팀 제외
+                const filteredEmployees = employees.filter(emp => emp.team !== '핵심리더팀');
+
+                // 전체 Tier 분포
+                const tierCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+                filteredEmployees.forEach(emp => {
+                    if (tierCounts[emp.tier] !== undefined) {
+                        tierCounts[emp.tier]++;
+                    }
+                });
+
+                const total = filteredEmployees.length;
+                const t123Ratio = ((tierCounts[1] + tierCounts[2] + tierCounts[3]) / total * 100);
+                const t12Ratio = ((tierCounts[1] + tierCounts[2]) / total * 100);
+
+                // 각 지표 점수 계산
+                const tierDistributionScore = Math.min(100, (t123Ratio / 30) * 100);
+
+                // 연봉 효율성: Alert 케이스 비율 기반 점수 계산
+                // Tier 5-6인데 전체 평균 연봉보다 높은 인원
+                const overallAvgSalary = filteredEmployees.reduce((sum, emp) => sum + emp.salary, 0) / total;
+                const lowTierHighSalaryCount = filteredEmployees.filter(emp => {
+                    return (emp.tier >= 5) && (emp.salary > overallAvgSalary);
+                }).length;
+                const lowTierHighSalaryRatio = (lowTierHighSalaryCount / total) * 100;
+                // Alert 비율이 낮을수록 좋음: 0% = 100점, 50% = 0점 (선형 감소)
+                // 현실적 기준: 50% 미만이면 양호, 25% 미만이면 우수
+                const salaryEfficiencyScore = Math.max(0, Math.min(100, 100 - (lowTierHighSalaryRatio * 2)));
+
+                // 경력-역량 매칭도: Alert 케이스 비율 기반 점수 계산
+                // 24개월 이상 근무했는데 Tier 5-6인 인원
+                const experiencedLowTier = filteredEmployees.filter(emp => {
+                    const joinDate = new Date(emp.joinDate);
+                    const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                     (baseDate.getMonth() - joinDate.getMonth());
+                    return monthsDiff >= 24 && emp.tier >= 5;
+                }).length;
+                const experiencedLowTierRatio = (experiencedLowTier / total) * 100;
+                // Alert 비율이 낮을수록 좋음: 0% = 100점, 40% = 0점 (선형 감소)
+                // 현실적 기준: 40% 미만이면 양호, 20% 미만이면 우수
+                const experienceMatchScore = Math.max(0, Math.min(100, 100 - (experiencedLowTierRatio * 2.5)));
+
+                // 성장 잠재력 1순위 계산 (팀/파트별)
+                const growthGroups = {};
+                filteredEmployees.forEach(emp => {
+                    const key = emp.part || emp.team || '-';
+                    if (!growthGroups[key]) growthGroups[key] = { total: 0, newHighTier: 0 };
+                    growthGroups[key].total++;
+                    
+                    const joinDate = new Date(emp.joinDate);
+                    const monthsDiff = (baseDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                     (baseDate.getMonth() - joinDate.getMonth());
+                    if (monthsDiff <= 12 && emp.tier <= 3) {
+                        growthGroups[key].newHighTier++;
+                    }
+                });
+                
+                const growthRanking = Object.keys(growthGroups)
+                    .map(key => ({
+                        name: key,
+                        count: growthGroups[key].newHighTier,
+                        ratio: (growthGroups[key].newHighTier / growthGroups[key].total) * 100
+                    }))
+                    .filter(g => g.count > 0)
+                    .sort((a, b) => b.count - a.count || b.ratio - a.ratio);
+                
+                const growthTop1 = growthRanking.length > 0 ? growthRanking[0] : null;
+
+                // 핵심 인재 분포 1순위 계산 (팀/파트별)
+                const talentGroups = {};
+                filteredEmployees.forEach(emp => {
+                    const key = emp.part || emp.team || '-';
+                    if (!talentGroups[key]) talentGroups[key] = { total: 0, talent: 0 };
+                    talentGroups[key].total++;
+                    if (emp.tier <= 2) {
+                        talentGroups[key].talent++;
+                    }
+                });
+                
+                const talentRanking = Object.keys(talentGroups)
+                    .map(key => ({
+                        name: key,
+                        count: talentGroups[key].talent,
+                        ratio: (talentGroups[key].talent / talentGroups[key].total) * 100
+                    }))
+                    .filter(t => t.count > 0)
+                    .sort((a, b) => b.count - a.count || b.ratio - a.ratio);
+                
+                const talentTop1 = talentRanking.length > 0 ? talentRanking[0] : null;
+
+                // 종합 점수 (성장 잠재력과 핵심 인재 분포 제외)
+                const overallScore = (
+                    tierDistributionScore * 0.5 +
+                    salaryEfficiencyScore * 0.3 +
+                    experienceMatchScore * 0.2
+                );
+
+                // 등급별 스타일 적용 함수 (점수 기반)
+                function applyScoreStyle(scoreId, gradeId, cardId, score) {
+                    const grade = getScoreGrade(score);
+                    const scoreEl = document.getElementById(scoreId);
+                    const gradeEl = document.getElementById(gradeId);
+                    const cardEl = document.getElementById(cardId);
+                    
+                    if (scoreEl) {
+                        scoreEl.textContent = score.toFixed(0);
+                        scoreEl.className = `text-2xl font-bold ${grade.textColor}`;
+                    }
+                    if (gradeEl) {
+                        gradeEl.textContent = grade.grade;
+                        gradeEl.className = `text-xs font-medium px-2 py-0.5 rounded mt-1 inline-block ${grade.bgColor} ${grade.textColor}`;
+                    }
+                    if (cardEl) {
+                        cardEl.className = `p-4 rounded-xl border-2 transition-all ${grade.bgColor} ${grade.borderColor}`;
+                    }
+                }
+
+                // 비율 표시 함수 (점수 환산 없음)
+                function applyRatioStyle(scoreId, gradeId, cardId, ratio, label) {
+                    const scoreEl = document.getElementById(scoreId);
+                    const gradeEl = document.getElementById(gradeId);
+                    const cardEl = document.getElementById(cardId);
+                    
+                    if (scoreEl) {
+                        scoreEl.textContent = ratio.toFixed(1);
+                        scoreEl.className = `text-2xl font-bold text-gray-700`;
+                    }
+                    if (gradeEl) {
+                        gradeEl.textContent = label || '비교 지표';
+                        gradeEl.className = `text-xs font-medium px-2 py-0.5 rounded mt-1 inline-block bg-gray-100 text-gray-700`;
+                    }
+                    if (cardEl) {
+                        cardEl.className = `p-4 rounded-xl border-2 transition-all bg-gray-50 border-gray-200`;
+                    }
+                }
+
+                // UI 업데이트
+                const overallGrade = getScoreGrade(overallScore);
+                document.getElementById('overallHealthScore').textContent = overallScore.toFixed(0);
+                document.getElementById('overallHealthScore').className = `text-5xl font-bold ${overallGrade.textColor}`;
+                const overallGradeEl = document.getElementById('overallHealthGrade');
+                if (overallGradeEl) {
+                    overallGradeEl.textContent = overallGrade.grade;
+                    overallGradeEl.className = `ml-2 px-3 py-1 text-sm font-semibold rounded-full ${overallGrade.bgColor} ${overallGrade.textColor}`;
+                }
+
+                // 개별 지표 스타일 적용
+                applyScoreStyle('tierDistributionScore', 'tierDistributionGrade', 'tierDistributionCard', tierDistributionScore);
+                applyScoreStyle('salaryEfficiencyScore', 'salaryEfficiencyGrade', 'salaryEfficiencyCard', salaryEfficiencyScore);
+                applyScoreStyle('experienceMatchScore', 'experienceMatchGrade', 'experienceMatchCard', experienceMatchScore);
+
+                // 성장 잠재력 1순위 표시
+                const growthScoreEl = document.getElementById('growthPotentialScore');
+                if (growthScoreEl) {
+                    growthScoreEl.textContent = growthTop1 ? `${growthTop1.name}` : '없음';
+                }
+                const growthGradeEl = document.getElementById('growthPotentialGrade');
+                if (growthGradeEl && growthTop1) {
+                    growthGradeEl.textContent = `${growthTop1.count}명`;
+                }
+
+                // 핵심 인재 1순위 표시
+                const talentScoreEl = document.getElementById('keyTalentScore');
+                if (talentScoreEl) {
+                    talentScoreEl.textContent = talentTop1 ? `${talentTop1.name}` : '없음';
+                }
+                const talentGradeEl = document.getElementById('keyTalentGrade');
+                if (talentGradeEl && talentTop1) {
+                    talentGradeEl.textContent = `${talentTop1.count}명`;
+                }
+
+                // 상세 정보 표시
+                const salaryEfficiencyDetail = document.getElementById('salaryEfficiencyDetail');
+                if (salaryEfficiencyDetail) {
+                    salaryEfficiencyDetail.textContent = `비효율 ${lowTierHighSalaryCount}명 (${lowTierHighSalaryRatio.toFixed(1)}%)`;
+                }
+                const experienceMatchDetail = document.getElementById('experienceMatchDetail');
+                if (experienceMatchDetail) {
+                    experienceMatchDetail.textContent = `미스매치 ${experiencedLowTier}명 (${experiencedLowTierRatio.toFixed(1)}%)`;
+                }
+
+                // 게이지 차트
+                if (hrCharts.healthGauge) {
+                    hrCharts.healthGauge.destroy();
+                }
+                const gaugeCtx = document.getElementById('healthGaugeChart');
+                if (gaugeCtx) {
+                    hrCharts.healthGauge = new Chart(gaugeCtx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [overallScore, 100 - overallScore],
+                                backgroundColor: [
+                                    overallScore >= 70 ? 'rgba(34, 197, 94, 0.8)' : 
+                                    overallScore >= 50 ? 'rgba(251, 191, 36, 0.8)' : 
+                                    'rgba(239, 68, 68, 0.8)',
+                                    'rgba(229, 231, 235, 0.3)'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: false }
+                            }
+                        },
+                        plugins: [{
+                            id: 'centerText',
+                            beforeDraw: function(chart) {
+                                const ctx = chart.ctx;
+                                const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+                                const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                ctx.save();
+                                ctx.font = 'bold 24px Inter';
+                                ctx.fillStyle = overallScore >= 70 ? '#22c55e' : overallScore >= 50 ? '#fbbf24' : '#ef4444';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(overallScore.toFixed(0), centerX, centerY);
+                                ctx.restore();
+                            }
+                        }]
+                    });
+                }
+            }
+
+            // Alert 업데이트
+            function updateAlerts() {
+                const baseDate = new Date(
+                    parseInt(baseYear.value),
+                    parseInt(baseMonth.value) - 1,
+                    parseInt(baseDay.value)
+                );
+
+                // 핵심리더팀 제외
+                const filteredEmployees = employees.filter(emp => emp.team !== '핵심리더팀');
+
+                const alerts = [];
+
+                // 1. 리더인데 Tier가 낮은 경우
+                const lowTierLeaders = filteredEmployees.filter(emp => {
+                    const isLeader = emp.position && (emp.position.includes('리더') || emp.position.includes('파트장') || emp.position.includes('AD') || emp.position.includes('TD'));
+                    return isLeader && emp.tier >= 5;
+                });
+                if (lowTierLeaders.length > 0) {
+                    alerts.push({
+                        level: 'critical',
+                        message: `⚠️ 리더/파트장인데 Tier가 낮은 인원: ${lowTierLeaders.length}명`,
+                        details: lowTierLeaders.slice(0, 3).map(emp => `${emp.name} (${emp.position}, T${emp.tier})`).join(', ')
+                    });
+                }
+
+                // 2. 역량 집중도 과다
+                const groups = groupEmployeesBySegment('part');
+                Object.keys(groups).forEach(key => {
+                    const empList = groups[key];
+                    const tierCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+                    empList.forEach(emp => {
+                        if (tierCounts[emp.tier] !== undefined) {
+                            tierCounts[emp.tier]++;
+                        }
+                    });
+                    const t123Ratio = ((tierCounts[1] + tierCounts[2] + tierCounts[3]) / empList.length * 100);
+                    if (t123Ratio >= 50) {
+                        alerts.push({
+                            level: 'warning',
+                            message: `⚠️ ${key} 파트: 역량이 과도하게 집중됨 (T1-T3 비율: ${t123Ratio.toFixed(1)}%)`
+                        });
+                    }
+                });
+
+                // 3. 역량 부족 파트
+                Object.keys(groups).forEach(key => {
+                    const empList = groups[key];
+                    const tierCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+                    empList.forEach(emp => {
+                        if (tierCounts[emp.tier] !== undefined) {
+                            tierCounts[emp.tier]++;
+                        }
+                    });
+                    const t123Ratio = ((tierCounts[1] + tierCounts[2] + tierCounts[3]) / empList.length * 100);
+                    if (t123Ratio < 15 && empList.length >= 5) {
+                        alerts.push({
+                            level: 'warning',
+                            message: `⚠️ ${key} 파트: 역량 부족 (T1-T3 비율: ${t123Ratio.toFixed(1)}%)`
+                        });
+                    }
+                });
+
+                // Alert 컨테이너 업데이트
+                const alertContainer = document.getElementById('alertContainer');
+                if (alertContainer) {
+                    if (alerts.length === 0) {
+                        alertContainer.innerHTML = '<div class="p-3 bg-green-50 rounded border border-green-200 text-green-700">✅ 주요 Alert 없음</div>';
+                    } else {
+                        alertContainer.innerHTML = alerts.map(alert => {
+                            const bgColor = alert.level === 'critical' ? 'bg-red-50 border-red-200 text-red-700' : 
+                                          alert.level === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' : 
+                                          'bg-blue-50 border-blue-200 text-blue-700';
+                            return `
+                                <div class="p-3 rounded border ${bgColor}">
+                                    <div class="font-semibold">${alert.message}</div>
+                                    ${alert.details ? `<div class="text-sm mt-1">${alert.details}</div>` : ''}
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+
+                // Alert 요약 업데이트
+                const alertSummary = document.getElementById('alertSummary');
+                const alertSection = document.getElementById('alertSummarySection');
+                if (alertSummary && alertSection) {
+                    if (alerts.length === 0) {
+                        // Alert가 없으면 섹션 숨기기
+                        alertSection.classList.add('hidden');
+                    } else {
+                        const criticalCount = alerts.filter(a => a.level === 'critical').length;
+                        const warningCount = alerts.filter(a => a.level === 'warning').length;
+                        alertSummary.innerHTML = `
+                            <p class="font-semibold text-red-900">주요 Alert: ${alerts.length}건</p>
+                            <p class="text-sm text-red-700">Critical: ${criticalCount}건, Warning: ${warningCount}건 | 자세한 내용은 각 인사이트 카드를 클릭하여 확인하세요.</p>
+                        `;
+                        alertSection.classList.remove('hidden');
+                    }
+                }
+            }
         });
     </script>
 </body>
