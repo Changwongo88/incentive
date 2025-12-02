@@ -794,9 +794,9 @@
                         </div>
                         <div>
                             <label for="launchBonusSlider" class="block text-sm font-medium text-gray-700 mb-1">
-                                총 런칭 보너스: <span id="launchBonusDisplay" class="font-bold text-indigo-600">10억원</span>
+                                총 런칭 보너스: <span id="launchBonusDisplay" class="font-bold text-indigo-600">8억원</span>
                             </label>
-                            <input type="range" id="launchBonusSlider" min="1" max="50" value="10" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <input type="range" id="launchBonusSlider" min="1" max="50" value="8" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         </div>
                     </div>
                     <div class="mt-6 p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
@@ -939,19 +939,15 @@
                     <!-- 런칭 보너스 분할 지급 -->
                     <div class="mt-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
                         <h4 class="font-semibold text-gray-800 mb-3 text-center">런칭 보너스 분할 지급 계획</h4>
-                        <p class="text-sm text-gray-600 mb-3 text-center">런칭 보너스는 3회에 걸쳐 균등 분할 지급됩니다 (각 33.33%)</p>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <p class="text-sm text-gray-600 mb-3 text-center">런칭 보너스는 2회에 걸쳐 분할 지급됩니다 (1차 66.67%, 2차 33.33%)</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="kpi-box bg-white">
-                                <div class="kpi-title text-sm">1차: 12월말 지급</div>
+                                <div class="kpi-title text-sm">1차: 12월말 + IBT 후 지급 (66.67%)</div>
                                 <div id="lb_payment_1" class="kpi-value text-lg">-</div>
                             </div>
                             <div class="kpi-box bg-white">
-                                <div class="kpi-title text-sm">2차: IBT 후 지급</div>
+                                <div class="kpi-title text-sm">2차: 런칭시 지급 (33.33%)</div>
                                 <div id="lb_payment_2" class="kpi-value text-lg">-</div>
-                            </div>
-                            <div class="kpi-box bg-white">
-                                <div class="kpi-title text-sm">3차: 런칭시 지급</div>
-                                <div id="lb_payment_3" class="kpi-value text-lg">-</div>
                             </div>
                         </div>
                     </div>
@@ -1377,6 +1373,20 @@
                             <span id="searchResultText"></span>
                         </div>
 
+                        <!-- 인센티브 확정 및 CSV 내보내기 버튼 -->
+                        <div class="mb-4 flex gap-3">
+                            <button id="lockIncentives" class="bg-indigo-600 text-white px-6 py-2.5 rounded-md hover:bg-indigo-700 transition-colors font-semibold shadow-md">
+                                💎 인센티브 금액 확정
+                            </button>
+                            <button id="exportCSV" class="bg-green-600 text-white px-6 py-2.5 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                                📊 CSV 내보내기
+                            </button>
+                            <div id="lockStatus" class="flex items-center text-sm text-gray-600 ml-2 hidden">
+                                <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                                인센티브 금액이 확정되었습니다
+                            </div>
+                        </div>
+
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
@@ -1394,16 +1404,17 @@
                                         <th class="text-right" rowspan="2">연봉</th>
                                         <th class="text-right" rowspan="2">월급</th>
                                         <th class="text-right" rowspan="2">성과 인센티브</th>
-                                        <th class="text-right" colspan="4">런칭 보너스</th>
-                                        <th class="text-right" rowspan="2">월급 대비<br>성과급 비율</th>
-                                        <th class="text-right" rowspan="2">월급 대비<br>런칭 보너스 비율</th>
+                                        <th class="text-right" rowspan="2">월급 대비<br>성과급 배수</th>
+                                        <th class="text-right" colspan="6">런칭 보너스</th>
                                         <th class="text-center" rowspan="2">관리</th>
                                     </tr>
                                     <tr>
                                         <th class="text-right bg-blue-50">총액</th>
-                                        <th class="text-right bg-blue-50">1차(12월)</th>
-                                        <th class="text-right bg-blue-50">2차(IBT)</th>
-                                        <th class="text-right bg-blue-50">3차(런칭)</th>
+                                        <th class="text-right bg-blue-50">배수</th>
+                                        <th class="text-right bg-blue-50">1차(66.67%)</th>
+                                        <th class="text-right bg-blue-50">1차 배수</th>
+                                        <th class="text-right bg-blue-50">2차(33.33%)</th>
+                                        <th class="text-right bg-blue-50">2차 배수</th>
                                     </tr>
                                 </thead>
                                 <tbody id="employeeTableBody">
@@ -1415,12 +1426,13 @@
                                         <td class="text-right font-bold" id="total_salary">-</td>
                                         <td class="text-right font-bold" id="total_monthly">-</td>
                                         <td class="text-right font-bold" id="total_incentive">-</td>
-                                        <td class="text-right font-bold bg-blue-50" id="total_bonus">-</td>
-                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_payment1">-</td>
-                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_payment2">-</td>
-                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_payment3">-</td>
                                         <td class="text-right font-bold" id="total_ratio">-</td>
-                                        <td class="text-right font-bold" id="total_bonus_ratio">-</td>
+                                        <td class="text-right font-bold bg-blue-50" id="total_bonus">-</td>
+                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_ratio">-</td>
+                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_payment1">-</td>
+                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_payment1_ratio">-</td>
+                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_payment2">-</td>
+                                        <td class="text-right font-bold bg-blue-50" id="total_bonus_payment2_ratio">-</td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
@@ -2133,16 +2145,22 @@
             
             // Step 2 계산 결과를 저장할 전역 변수 (Tab 3에서 참조)
             let calculatedIncentiveValues = {
-                t1: { l1: 0, l2: 0, l3: 0 },
-                t2: { l1: 0, l2: 0, l3: 0 },
-                t3: { l1: 0, l2: 0, l3: 0 },
-                t4: { l1: 0, l2: 0, l3: 0 }
+                t1: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t2: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t3: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t4: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t5: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t6: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t7: { l1: 0, l2: 0, l3: 0, l4: 0 }
             };
             let calculatedBonusValues = {
-                t1: { l1: 0, l2: 0, l3: 0 },
-                t2: { l1: 0, l2: 0, l3: 0 },
-                t3: { l1: 0, l2: 0, l3: 0 },
-                t4: { l1: 0, l2: 0, l3: 0 }
+                t1: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t2: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t3: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t4: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t5: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t6: { l1: 0, l2: 0, l3: 0, l4: 0 },
+                t7: { l1: 0, l2: 0, l3: 0, l4: 0 }
             };
 
             function formatCurrency(num) {
@@ -2850,12 +2868,11 @@
                 setText('calculatedIncentiveRate', (incentiveRate * 100).toFixed(0) + '%');
                 
                 // 런칭 보너스 3회 분할 금액 계산 및 표시
-                const lbPayment1 = totalLaunchBonusPool / 3; // 33.33%
-                const lbPayment2 = totalLaunchBonusPool / 3; // 33.33%
-                const lbPayment3 = totalLaunchBonusPool / 3; // 33.33%
+                // 런칭 보너스 2회 분할: 1차 66.67% (기존 1회+2회), 2차 33.33% (기존 3회)
+                const lbPayment1 = totalLaunchBonusPool * (2/3); // 66.67%
+                const lbPayment2 = totalLaunchBonusPool * (1/3); // 33.33%
                 setText('lb_payment_1', formatCurrencyDisplay(lbPayment1));
                 setText('lb_payment_2', formatCurrencyDisplay(lbPayment2));
-                setText('lb_payment_3', formatCurrencyDisplay(lbPayment3));
 
                 // 요약 텍스트 (T1-T6 참여자)
                 setText('dynamic_total_headcount', total_headcount_t1_t6.toLocaleString('ko-KR'));
@@ -3166,11 +3183,10 @@
             const baseMonth = document.getElementById('baseMonth');
             const baseDay = document.getElementById('baseDay');
 
-            // Get current date
-            const today = new Date();
-            const currentYear = today.getFullYear();
-            const currentMonth = today.getMonth() + 1;
-            const currentDay = today.getDate();
+            // Set default date to August 1, 2026 (기준일자)
+            const currentYear = 2026;
+            const currentMonth = 8;
+            const currentDay = 1;
 
             // Populate year dropdown (2020-2030)
             for (let year = 2020; year <= 2030; year++) {
@@ -3217,6 +3233,8 @@
 
             // Employee data management
             let employees = [];
+            let lockedIncentives = []; // 확정된 인센티브 데이터 저장
+            let isIncentivesLocked = false; // 확정 여부 플래그
 
             // CSV 데이터에서 팀/파트/직책/상세직군 정보 매핑 (사번 기준)
             const employeeOrgData = {
@@ -3883,20 +3901,23 @@
                     const bonus = calculatedBonusValues[tierKey]?.[levelKey] || 0;
                     const monthlySalary = emp.salary / 12;
                     
-                    // Calculate ratio: (성과 인센티브 - 월급) / 월급 * 100
-                    const ratio = ((incentive - monthlySalary) / monthlySalary * 100);
-                    const ratioColor = ratio >= 0 ? 'text-green-600' : 'text-red-600';
-                    const ratioSign = ratio >= 0 ? '+' : '';
+                    // Calculate ratio: 성과 인센티브 / 월급 (배수로 표시)
+                    const ratio = incentive / monthlySalary;
+                    const ratioColor = ratio >= 1 ? 'text-green-600' : 'text-red-600';
                     
-                    // Calculate bonus ratio: (런칭 보너스 - 월급) / 월급 * 100
-                    const bonusRatio = ((bonus - monthlySalary) / monthlySalary * 100);
-                    const bonusRatioColor = bonusRatio >= 0 ? 'text-green-600' : 'text-red-600';
-                    const bonusRatioSign = bonusRatio >= 0 ? '+' : '';
+                    // Calculate bonus ratio: 런칭 보너스 / 월급 (배수로 표시)
+                    const bonusRatio = bonus / monthlySalary;
+                    const bonusRatioColor = bonusRatio >= 1 ? 'text-green-600' : 'text-red-600';
                     
-                    // Calculate bonus payment splits (33.33% each)
-                    const bonusPayment1 = bonus / 3;
-                    const bonusPayment2 = bonus / 3;
-                    const bonusPayment3 = bonus / 3;
+                    // Calculate bonus payment splits (66.67% for 1st, 33.33% for 2nd)
+                    const bonusPayment1 = bonus * (2/3); // 1차 66.67%
+                    const bonusPayment2 = bonus * (1/3); // 2차 33.33%
+                    
+                    // Calculate payment ratios
+                    const bonusPayment1Ratio = bonusPayment1 / monthlySalary;
+                    const bonusPayment1RatioColor = bonusPayment1Ratio >= 1 ? 'text-green-600' : 'text-red-600';
+                    const bonusPayment2Ratio = bonusPayment2 / monthlySalary;
+                    const bonusPayment2RatioColor = bonusPayment2Ratio >= 1 ? 'text-green-600' : 'text-red-600';
                     
                     // Update totals
                     totalSalary += emp.salary;
@@ -3927,12 +3948,13 @@
                         <td class="text-right">${emp.salary.toLocaleString()}원</td>
                         <td class="text-right">${Math.round(monthlySalary).toLocaleString()}원</td>
                         <td class="text-right">${Math.round(incentive).toLocaleString()}원</td>
+                        <td class="text-right ${ratioColor} font-semibold">${ratio.toFixed(2)}배</td>
                         <td class="text-right bg-blue-50">${Math.round(bonus).toLocaleString()}원</td>
+                        <td class="text-right bg-blue-50 ${bonusRatioColor} font-semibold">${bonusRatio.toFixed(2)}배</td>
                         <td class="text-right bg-blue-50 text-sm">${Math.round(bonusPayment1).toLocaleString()}원</td>
+                        <td class="text-right bg-blue-50 text-sm ${bonusPayment1RatioColor} font-semibold">${bonusPayment1Ratio.toFixed(2)}배</td>
                         <td class="text-right bg-blue-50 text-sm">${Math.round(bonusPayment2).toLocaleString()}원</td>
-                        <td class="text-right bg-blue-50 text-sm">${Math.round(bonusPayment3).toLocaleString()}원</td>
-                        <td class="text-right ${ratioColor} font-semibold">${ratioSign}${ratio.toFixed(1)}%</td>
-                        <td class="text-right ${bonusRatioColor} font-semibold">${bonusRatioSign}${bonusRatio.toFixed(1)}%</td>
+                        <td class="text-right bg-blue-50 text-sm ${bonusPayment2RatioColor} font-semibold">${bonusPayment2Ratio.toFixed(2)}배</td>
                         <td class="text-center">
                             <button onclick="deleteEmployee(${originalIndex})" 
                                     class="text-red-600 hover:text-red-800 transition-colors">
@@ -3950,35 +3972,52 @@
                 const totalBonusEl = document.getElementById('total_bonus');
                 const totalBonusPayment1El = document.getElementById('total_bonus_payment1');
                 const totalBonusPayment2El = document.getElementById('total_bonus_payment2');
-                const totalBonusPayment3El = document.getElementById('total_bonus_payment3');
+                const totalBonusPayment1RatioEl = document.getElementById('total_bonus_payment1_ratio');
+                const totalBonusPayment2RatioEl = document.getElementById('total_bonus_payment2_ratio');
                 const totalRatioEl = document.getElementById('total_ratio');
                 const totalBonusRatioEl = document.getElementById('total_bonus_ratio');
                 const displayedCountEl = document.getElementById('displayedCount');
+                
+                const totalBonusPayment1 = totalBonus * (2/3);
+                const totalBonusPayment2 = totalBonus * (1/3);
                 
                 if (totalSalaryEl) totalSalaryEl.textContent = Math.round(totalSalary).toLocaleString() + '원';
                 if (totalMonthlyEl) totalMonthlyEl.textContent = Math.round(totalMonthly).toLocaleString() + '원';
                 if (totalIncentiveEl) totalIncentiveEl.textContent = Math.round(totalIncentive).toLocaleString() + '원';
                 if (totalBonusEl) totalBonusEl.textContent = Math.round(totalBonus).toLocaleString() + '원';
-                if (totalBonusPayment1El) totalBonusPayment1El.textContent = Math.round(totalBonus / 3).toLocaleString() + '원';
-                if (totalBonusPayment2El) totalBonusPayment2El.textContent = Math.round(totalBonus / 3).toLocaleString() + '원';
-                if (totalBonusPayment3El) totalBonusPayment3El.textContent = Math.round(totalBonus / 3).toLocaleString() + '원';
+                if (totalBonusPayment1El) totalBonusPayment1El.textContent = Math.round(totalBonusPayment1).toLocaleString() + '원';
+                if (totalBonusPayment2El) totalBonusPayment2El.textContent = Math.round(totalBonusPayment2).toLocaleString() + '원';
                 
-                // Calculate total ratio (성과 인센티브)
+                // Calculate total ratio (성과 인센티브) - 배수로 표시
                 if (totalRatioEl && totalMonthly > 0) {
-                    const totalRatio = ((totalIncentive - totalMonthly) / totalMonthly * 100);
-                    const ratioColor = totalRatio >= 0 ? 'text-green-600' : 'text-red-600';
-                    const ratioSign = totalRatio >= 0 ? '+' : '';
+                    const totalRatio = totalIncentive / totalMonthly;
+                    const ratioColor = totalRatio >= 1 ? 'text-green-600' : 'text-red-600';
                     totalRatioEl.className = `text-right font-bold ${ratioColor}`;
-                    totalRatioEl.textContent = `${ratioSign}${totalRatio.toFixed(1)}%`;
+                    totalRatioEl.textContent = `${totalRatio.toFixed(2)}배`;
                 }
                 
-                // Calculate total bonus ratio (런칭 보너스)
+                // Calculate total bonus ratio (런칭 보너스) - 배수로 표시
                 if (totalBonusRatioEl && totalMonthly > 0) {
-                    const totalBonusRatio = ((totalBonus - totalMonthly) / totalMonthly * 100);
-                    const bonusRatioColor = totalBonusRatio >= 0 ? 'text-green-600' : 'text-red-600';
-                    const bonusRatioSign = totalBonusRatio >= 0 ? '+' : '';
-                    totalBonusRatioEl.className = `text-right font-bold ${bonusRatioColor}`;
-                    totalBonusRatioEl.textContent = `${bonusRatioSign}${totalBonusRatio.toFixed(1)}%`;
+                    const totalBonusRatio = totalBonus / totalMonthly;
+                    const bonusRatioColor = totalBonusRatio >= 1 ? 'text-green-600' : 'text-red-600';
+                    totalBonusRatioEl.className = `text-right font-bold bg-blue-50 ${bonusRatioColor}`;
+                    totalBonusRatioEl.textContent = `${totalBonusRatio.toFixed(2)}배`;
+                }
+                
+                // Calculate bonus payment 1 ratio (1차 지급)
+                if (totalBonusPayment1RatioEl && totalMonthly > 0) {
+                    const payment1Ratio = totalBonusPayment1 / totalMonthly;
+                    const payment1RatioColor = payment1Ratio >= 1 ? 'text-green-600' : 'text-red-600';
+                    totalBonusPayment1RatioEl.className = `text-right font-bold bg-blue-50 ${payment1RatioColor}`;
+                    totalBonusPayment1RatioEl.textContent = `${payment1Ratio.toFixed(2)}배`;
+                }
+                
+                // Calculate bonus payment 2 ratio (2차 지급)
+                if (totalBonusPayment2RatioEl && totalMonthly > 0) {
+                    const payment2Ratio = totalBonusPayment2 / totalMonthly;
+                    const payment2RatioColor = payment2Ratio >= 1 ? 'text-green-600' : 'text-red-600';
+                    totalBonusPayment2RatioEl.className = `text-right font-bold bg-blue-50 ${payment2RatioColor}`;
+                    totalBonusPayment2RatioEl.textContent = `${payment2Ratio.toFixed(2)}배`;
                 }
                 
                 // Update displayed count
@@ -6500,6 +6539,151 @@
                     }
                 }
             }
+
+            // ####################
+            // 인센티브 확정 및 CSV 내보내기 기능
+            // ####################
+
+            // 인센티브 확정 및 CSV 내보내기 함수
+            function exportIncentivesToCSV() {
+                // 현재 필터링된 직원들의 인센티브 정보를 저장
+                lockedIncentives = [];
+                
+                const baseYear = document.getElementById('baseYear');
+                const baseMonth = document.getElementById('baseMonth');
+                const baseDay = document.getElementById('baseDay');
+                const baseDate = new Date(
+                    parseInt(baseYear.value),
+                    parseInt(baseMonth.value) - 1,
+                    parseInt(baseDay.value)
+                );
+
+                employees.forEach(emp => {
+                    const joinDate = new Date(emp.joinDate);
+                    const level = calculateLevel(joinDate, baseDate);
+                    
+                    // Step 2에서 계산된 Tier/Level별 인센티브와 보너스 값 가져오기
+                    const tierKey = 't' + emp.tier;
+                    const levelKey = level.toLowerCase();
+                    
+                    const incentive = calculatedIncentiveValues[tierKey]?.[levelKey] || 0;
+                    const bonus = calculatedBonusValues[tierKey]?.[levelKey] || 0;
+                    const bonusPayment1 = bonus * (2/3); // 1차 66.67%
+                    const bonusPayment2 = bonus * (1/3); // 2차 33.33%
+
+                    lockedIncentives.push({
+                        id: emp.id,
+                        name: emp.name,
+                        team: emp.team || '-',
+                        part: emp.part || '-',
+                        position: emp.position || '-',
+                        detailRole: emp.detailRole || '-',
+                        launchBonusTotal: Math.round(bonus),
+                        launchBonusPayment1: Math.round(bonusPayment1),
+                        launchBonusPayment2: Math.round(bonusPayment2)
+                    });
+                });
+
+                if (lockedIncentives.length === 0) {
+                    alert('⚠️ 내보낼 데이터가 없습니다. 직원 데이터를 먼저 로드해주세요.');
+                    return;
+                }
+
+                // CSV 헤더
+                const headers = ['사번', '이름', '팀', '파트', '직책', '상세직군', '런칭 보너스 총액', '1차 지급', '2차 지급'];
+                
+                // CSV 데이터 생성
+                const csvRows = [headers.join(',')];
+                
+                lockedIncentives.forEach(emp => {
+                    const row = [
+                        `"${emp.id}"`,
+                        `"${emp.name}"`,
+                        `"${emp.team}"`,
+                        `"${emp.part}"`,
+                        `"${emp.position}"`,
+                        `"${emp.detailRole}"`,
+                        emp.launchBonusTotal,
+                        emp.launchBonusPayment1,
+                        emp.launchBonusPayment2
+                    ];
+                    csvRows.push(row.join(','));
+                });
+
+                // CSV 파일 생성 및 다운로드
+                const csvContent = '\uFEFF' + csvRows.join('\n'); // BOM 추가 (Excel 한글 호환)
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                const today = new Date();
+                const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', `런칭보너스_확정_${dateStr}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 확정 상태 업데이트
+                isIncentivesLocked = true;
+                document.getElementById('lockStatus').classList.remove('hidden');
+                document.getElementById('exportCSV').disabled = false;
+                
+                alert(`✅ 인센티브 금액이 확정되었고 CSV 파일이 다운로드되었습니다.\n총 ${lockedIncentives.length}명의 데이터가 포함되었습니다.`);
+            }
+
+            // 인센티브 확정 버튼 이벤트
+            document.getElementById('lockIncentives').addEventListener('click', function() {
+                if (confirm('현재 계산된 인센티브 금액을 확정하고 CSV로 내보내시겠습니까?')) {
+                    exportIncentivesToCSV();
+                }
+            });
+
+            // CSV 내보내기 버튼 이벤트
+            document.getElementById('exportCSV').addEventListener('click', function() {
+                if (isIncentivesLocked && lockedIncentives.length > 0) {
+                    // 이미 확정된 데이터가 있으면 바로 내보내기
+                    const headers = ['사번', '이름', '팀', '파트', '직책', '상세직군', '런칭 보너스 총액', '1차 지급', '2차 지급'];
+                    const csvRows = [headers.join(',')];
+                    
+                    lockedIncentives.forEach(emp => {
+                        const row = [
+                            `"${emp.id}"`,
+                            `"${emp.name}"`,
+                            `"${emp.team}"`,
+                            `"${emp.part}"`,
+                            `"${emp.position}"`,
+                            `"${emp.detailRole}"`,
+                            emp.launchBonusTotal,
+                            emp.launchBonusPayment1,
+                            emp.launchBonusPayment2
+                        ];
+                        csvRows.push(row.join(','));
+                    });
+
+                    const csvContent = '\uFEFF' + csvRows.join('\n');
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    
+                    const today = new Date();
+                    const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                    
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `런칭보너스_확정_${dateStr}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    alert('✅ CSV 파일이 다운로드되었습니다.');
+                } else {
+                    // 확정되지 않았으면 새로 계산하여 내보내기
+                    exportIncentivesToCSV();
+                }
+            });
         });
     </script>
 </body>
