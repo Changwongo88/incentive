@@ -1536,6 +1536,40 @@
 
         <!-- Tab 3 Content: 데이터 검증 -->
         <div id="tab3-content" class="hidden">
+            <!-- 데이터 없음 팝업 모달 -->
+            <div id="noDataModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onclick="closeNoDataModal()">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all" onclick="event.stopPropagation()">
+                    <div class="p-8">
+                        <!-- 아이콘 -->
+                        <div class="flex justify-center mb-6">
+                            <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- 메시지 -->
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-3">데이터가 없습니다</h3>
+                            <p class="text-gray-600 leading-relaxed">
+                                데이터 검증을 하기 위해서는<br>
+                                <span class="font-bold text-indigo-600">[슈퍼캣 인원관리]</span> 탭에서<br>
+                                <span class="font-bold text-indigo-600">[인센티브 인원 확정]</span> 버튼을 눌러야<br>
+                                데이터 검증이 가능합니다.
+                            </p>
+                        </div>
+                        
+                        <!-- 버튼 -->
+                        <div class="flex justify-center">
+                            <button onclick="closeNoDataModal()" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-md">
+                                확인
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 상단 헤더 -->
             <div class="bg-white border-b border-gray-200 shadow-sm mb-6">
                 <div class="px-8 py-6">
@@ -7157,12 +7191,17 @@
             function initializeVerificationTab() {
                 // 확정된 데이터가 있는지 확인
                 if (!isIncentivesLocked || lockedIncentives.length === 0) {
+                    // 팝업 모달 표시
+                    document.getElementById('noDataModal').classList.remove('hidden');
                     document.getElementById('noDataMessage').classList.remove('hidden');
                     document.getElementById('verificationTableContainer').classList.add('hidden');
                     document.getElementById('verificationStatus').textContent = '미검증';
                     document.getElementById('verificationStatus').className = 'px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600';
                     return;
                 }
+                
+                // 데이터가 있으면 팝업 숨기기
+                document.getElementById('noDataModal').classList.add('hidden');
 
                 document.getElementById('noDataMessage').classList.add('hidden');
                 document.getElementById('verificationTableContainer').classList.remove('hidden');
@@ -7248,6 +7287,14 @@
                 // 데이터 테이블 렌더링
                 renderVerificationTable();
             }
+
+            // 팝업 모달 닫기 함수
+            function closeNoDataModal() {
+                document.getElementById('noDataModal').classList.add('hidden');
+            }
+
+            // 전역 함수로 등록 (HTML에서 onclick으로 호출하기 위해)
+            window.closeNoDataModal = closeNoDataModal;
 
             // 검증 테이블 렌더링
             function renderVerificationTable() {
