@@ -59,6 +59,23 @@
             backdrop-filter: blur(4px);
         }
         
+        /* 인센티브 금액 확정 버튼 깜빡임 애니메이션 */
+        @keyframes highlightBlink {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+                transform: scale(1.05);
+            }
+        }
+        
+        .highlight-button {
+            animation: highlightBlink 1.5s ease-in-out infinite;
+            border: 3px solid #818cf8 !important;
+        }
+        
         /* 표준 입력 필드 스타일 */
         .input-base {
             width: 100%;
@@ -1379,6 +1396,9 @@
 
                         <!-- 인센티브 확정 및 CSV 내보내기 버튼 -->
                         <div class="mb-4 flex gap-3">
+                            <button id="setupActualPayment" class="bg-purple-600 text-white px-6 py-2.5 rounded-md hover:bg-purple-700 transition-colors font-semibold shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                                💰 실지급 금액 세팅
+                            </button>
                             <button id="lockIncentives" class="bg-indigo-600 text-white px-6 py-2.5 rounded-md hover:bg-indigo-700 transition-colors font-semibold shadow-md">
                                 💎 인센티브 금액 확정
                             </button>
@@ -1555,15 +1575,15 @@
                             <p class="text-gray-600 leading-relaxed">
                                 데이터 검증을 하기 위해서는<br>
                                 <span class="font-bold text-indigo-600">[슈퍼캣 인원관리]</span> 탭에서<br>
-                                <span class="font-bold text-indigo-600">[인센티브 인원 확정]</span> 버튼을 눌러야<br>
+                                <span class="font-bold text-indigo-600">[인센티브 금액 확정]</span> 버튼을 눌러야<br>
                                 데이터 검증이 가능합니다.
                             </p>
                         </div>
                         
                         <!-- 버튼 -->
                         <div class="flex justify-center">
-                            <button onclick="closeNoDataModal()" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-md">
-                                확인
+                            <button onclick="goToIncentiveLockTab()" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-md">
+                                슈퍼캣 인원관리로 이동
                             </button>
                         </div>
                     </div>
@@ -3471,7 +3491,7 @@
             let isTab2Unlocked = false;
             const TAB2_PASSWORD = 'Eodzb150!';
 
-            function switchTab(tabNumber) {
+            function switchTab(tabNumber, options = {}) {
                 // 모든 탭 버튼 스타일 초기화
                 [tab1Button, tab2Button, tab3Button, tab4Button].forEach(btn => {
                     btn.classList.add('border-transparent', 'text-gray-500');
@@ -3489,12 +3509,23 @@
                     tab1Content.classList.remove('hidden');
                 } else if (tabNumber === 2) {
                     if (!isTab2Unlocked) {
-                        showPasswordModal();
-                        return;
+                        const passwordResult = showPasswordModal();
+                        if (!passwordResult) {
+                            // 암호가 틀렸거나 취소한 경우, 이전 탭으로 돌아가기
+                            return;
+                        }
+                        // 암호가 맞으면 isTab2Unlocked가 true로 설정되었으므로 계속 진행
                     }
                     tab2Button.classList.add('border-indigo-500', 'text-indigo-600');
                     tab2Button.classList.remove('border-transparent', 'text-gray-500');
                     tab2Content.classList.remove('hidden');
+                    
+                    // 스크롤 및 깜빡임 옵션이 있으면 실행
+                    if (options.scrollToButton) {
+                        setTimeout(() => {
+                            scrollToIncentiveLockButton();
+                        }, 100);
+                    }
                 } else if (tabNumber === 3) {
                     tab3Button.classList.add('border-indigo-500', 'text-indigo-600');
                     tab3Button.classList.remove('border-transparent', 'text-gray-500');
@@ -7043,6 +7074,7 @@
                 isIncentivesLocked = true;
                 document.getElementById('lockStatus').classList.remove('hidden');
                 document.getElementById('exportLaunchBonusCSV').disabled = false;
+                document.getElementById('setupActualPayment').disabled = false;
                 document.getElementById('csvExportOptions').classList.remove('hidden');
                 
                 return true;
@@ -7164,9 +7196,312 @@
                 if (confirm('현재 계산된 인센티브 금액을 확정하시겠습니까?\n확정 후 CSV 내보내기 옵션을 선택하여 내보낼 수 있습니다.')) {
                     if (lockIncentivesData()) {
                         alert(`✅ 인센티브 금액이 확정되었습니다.\n총 ${lockedIncentives.length}명의 데이터가 확정되었습니다.\n아래 옵션을 선택한 후 CSV 내보내기 버튼을 클릭하세요.`);
+                        // 실지급 금액 세팅 버튼 활성화
+                        document.getElementById('setupActualPayment').disabled = false;
                     }
                 }
             });
+
+            // 실지급 금액 세팅 관련 변수
+            let actualPaymentData = []; // 모달에서 편집 중인 데이터
+
+            // 실지급 금액 세팅 모달 열기
+            function openActualPaymentModal() {
+                if (!isIncentivesLocked || lockedIncentives.length === 0) {
+                    alert('⚠️ 먼저 인센티브 금액을 확정해주세요.');
+                    return;
+                }
+
+                // 데이터 복사
+                actualPaymentData = lockedIncentives.map(emp => ({
+                    ...emp,
+                    originalPayment1: emp.launchBonusPayment1,
+                    originalPayment2: emp.launchBonusPayment2
+                }));
+
+                // 모달 표시
+                document.getElementById('actualPaymentModal').classList.remove('hidden');
+                
+                // 데이터 렌더링
+                renderActualPaymentTable();
+                renderTierAmountSettings();
+                updateModalTotals();
+            }
+
+            // 실지급 금액 세팅 모달 닫기
+            function closeActualPaymentModal() {
+                document.getElementById('actualPaymentModal').classList.add('hidden');
+                actualPaymentData = [];
+            }
+
+            // 실지급 금액 테이블 렌더링
+            function renderActualPaymentTable() {
+                const tbody = document.getElementById('actualPaymentTableBody');
+                tbody.innerHTML = '';
+
+                actualPaymentData.forEach((emp, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="border border-gray-300 px-4 py-2 text-center">${emp.id}</td>
+                        <td class="border border-gray-300 px-4 py-2 text-center">${emp.name}</td>
+                        <td class="border border-gray-300 px-4 py-2 text-center">T${emp.tier}</td>
+                        <td class="border border-gray-300 px-4 py-2 text-right">${emp.launchBonusTotal.toLocaleString()}원</td>
+                        <td class="border border-gray-300 px-4 py-2 text-right">
+                            <input type="number" 
+                                   class="payment1-input w-full text-right border border-gray-300 rounded px-2 py-1" 
+                                   value="${emp.launchBonusPayment1}" 
+                                   data-index="${index}"
+                                   onchange="updatePaymentAmount(${index})">
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2 text-right">
+                            <input type="number" 
+                                   class="payment2-input w-full text-right border border-gray-300 rounded px-2 py-1" 
+                                   value="${emp.launchBonusPayment2}" 
+                                   data-index="${index}"
+                                   readonly>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // 티어별 금액 세팅 UI 렌더링 (L3 기준)
+            function renderTierAmountSettings() {
+                const container = document.getElementById('tierAmountSettings');
+                container.innerHTML = '';
+
+                // Tier 1-6에 대해 입력 필드 생성
+                for (let tier = 1; tier <= 6; tier++) {
+                    // L3 직원만 필터링
+                    const tierL3Employees = actualPaymentData.filter(emp => emp.tier === tier && emp.level === 'L3');
+                    if (tierL3Employees.length === 0) continue;
+
+                    // L3 직원들의 평균 1차 금액 계산 후 50만원 단위 반올림
+                    const avgPayment1 = tierL3Employees.reduce((sum, emp) => sum + emp.launchBonusPayment1, 0) / tierL3Employees.length;
+                    const defaultAmount = Math.round(avgPayment1 / 500000) * 500000;
+
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2';
+                    div.innerHTML = `
+                        <label class="text-sm font-semibold text-gray-700">T${tier}:</label>
+                        <input type="number" 
+                               id="tier${tier}Amount" 
+                               class="tier-amount-input w-32 text-right border border-gray-300 rounded px-2 py-1" 
+                               value="${defaultAmount}"
+                               onchange="applyTierAmount(${tier})">
+                        <span class="text-xs text-gray-500">원 (L3 기준)</span>
+                    `;
+                    container.appendChild(div);
+                }
+            }
+
+            // 모달 총액 업데이트
+            function updateModalTotals() {
+                const totalBonus = actualPaymentData.reduce((sum, emp) => sum + emp.launchBonusTotal, 0);
+                const totalPayment1 = actualPaymentData.reduce((sum, emp) => sum + emp.launchBonusPayment1, 0);
+                const totalPayment2 = actualPaymentData.reduce((sum, emp) => sum + emp.launchBonusPayment2, 0);
+
+                document.getElementById('modalTotalBonus').textContent = totalBonus.toLocaleString() + '원';
+                document.getElementById('modalTotalPayment1').textContent = totalPayment1.toLocaleString() + '원';
+                document.getElementById('modalTotalPayment2').textContent = totalPayment2.toLocaleString() + '원';
+            }
+
+            // 1차 금액 변경 시 2차 금액 자동 조정
+            function updatePaymentAmount(index) {
+                const emp = actualPaymentData[index];
+                const input1 = document.querySelector(`input[data-index="${index}"].payment1-input`);
+                const input2 = document.querySelector(`input[data-index="${index}"].payment2-input`);
+
+                if (input1 && input2) {
+                    const newPayment1 = parseInt(input1.value) || 0;
+                    const oldPayment1 = emp.launchBonusPayment1;
+                    const diff = newPayment1 - oldPayment1;
+                    const newPayment2 = emp.launchBonusPayment2 - diff;
+
+                    emp.launchBonusPayment1 = newPayment1;
+                    emp.launchBonusPayment2 = Math.max(0, newPayment2); // 음수 방지
+                    input2.value = emp.launchBonusPayment2;
+
+                    updateModalTotals();
+                }
+            }
+
+            // 1차 금액 정리 (L3는 Tier별 설정값, L2/L1은 10만원 단위 반올림)
+            function roundPayment1ToHundredThousand() {
+                // Tier별 설정된 금액 가져오기 (L3 기준)
+                const tierAmounts = {};
+                for (let tier = 1; tier <= 6; tier++) {
+                    const input = document.getElementById(`tier${tier}Amount`);
+                    if (input) {
+                        tierAmounts[tier] = parseInt(input.value) || 0;
+                    }
+                }
+
+                // 각 직원에 적용
+                actualPaymentData.forEach((emp, index) => {
+                    let newPayment1;
+                    
+                    if (emp.level === 'L3') {
+                        // L3: Tier별 설정된 금액 그대로 적용
+                        const tierAmount = tierAmounts[emp.tier];
+                        if (tierAmount && tierAmount > 0) {
+                            newPayment1 = tierAmount;
+                        } else {
+                            // 설정값이 없으면 현재 값 유지
+                            newPayment1 = emp.launchBonusPayment1;
+                        }
+                    } else {
+                        // L2, L1: 10만원 단위 반올림
+                        newPayment1 = Math.round(emp.launchBonusPayment1 / 100000) * 100000;
+                    }
+
+                    const diff = newPayment1 - emp.launchBonusPayment1;
+                    emp.launchBonusPayment1 = newPayment1;
+                    emp.launchBonusPayment2 = Math.max(0, emp.launchBonusPayment2 - diff);
+
+                    // UI 업데이트
+                    const input1 = document.querySelector(`input[data-index="${index}"].payment1-input`);
+                    const input2 = document.querySelector(`input[data-index="${index}"].payment2-input`);
+                    if (input1) input1.value = emp.launchBonusPayment1;
+                    if (input2) input2.value = emp.launchBonusPayment2;
+                });
+
+                updateModalTotals();
+            }
+
+            // 티어별 금액 적용 (L3만 적용)
+            function applyTierAmount(tier) {
+                const input = document.getElementById(`tier${tier}Amount`);
+                const amount = parseInt(input.value) || 0;
+
+                actualPaymentData.forEach((emp, index) => {
+                    // L3이고 해당 Tier인 경우만 적용
+                    if (emp.tier === tier && emp.level === 'L3') {
+                        const diff = amount - emp.launchBonusPayment1;
+                        emp.launchBonusPayment1 = amount;
+                        emp.launchBonusPayment2 = Math.max(0, emp.launchBonusPayment2 - diff);
+
+                        // UI 업데이트
+                        const input1 = document.querySelector(`input[data-index="${index}"].payment1-input`);
+                        const input2 = document.querySelector(`input[data-index="${index}"].payment2-input`);
+                        if (input1) input1.value = emp.launchBonusPayment1;
+                        if (input2) input2.value = emp.launchBonusPayment2;
+                    }
+                });
+
+                updateModalTotals();
+            }
+
+            // 초기화 함수 (원본 값으로 복원)
+            function resetPaymentToDefault() {
+                if (!confirm('모든 변경사항을 초기화하고 원본 값으로 되돌리시겠습니까?')) {
+                    return;
+                }
+
+                // 모든 직원의 금액을 원본 값으로 복원
+                actualPaymentData.forEach((emp, index) => {
+                    emp.launchBonusPayment1 = emp.originalPayment1;
+                    emp.launchBonusPayment2 = emp.originalPayment2;
+
+                    // UI 업데이트
+                    const input1 = document.querySelector(`input[data-index="${index}"].payment1-input`);
+                    const input2 = document.querySelector(`input[data-index="${index}"].payment2-input`);
+                    if (input1) input1.value = emp.launchBonusPayment1;
+                    if (input2) input2.value = emp.launchBonusPayment2;
+                });
+
+                // Tier별 금액 세팅도 초기값으로 복원
+                renderTierAmountSettings();
+
+                // 총액 업데이트
+                updateModalTotals();
+            }
+
+            // 저장하고 CSV 내보내기 함수
+            function saveActualPayment() {
+                // lockedIncentives 업데이트
+                actualPaymentData.forEach(updatedEmp => {
+                    const originalEmp = lockedIncentives.find(emp => emp.id === updatedEmp.id);
+                    if (originalEmp) {
+                        originalEmp.launchBonusPayment1 = updatedEmp.launchBonusPayment1;
+                        originalEmp.launchBonusPayment2 = updatedEmp.launchBonusPayment2;
+                    }
+                });
+
+                // CSV 내보내기
+                exportActualPaymentToCSV();
+
+                alert('✅ 실지급 금액이 저장되고 CSV 파일이 다운로드되었습니다.');
+                closeActualPaymentModal();
+            }
+
+            // 실지급 금액 세팅 데이터 CSV 내보내기
+            function exportActualPaymentToCSV() {
+                if (actualPaymentData.length === 0) {
+                    alert('⚠️ 내보낼 데이터가 없습니다.');
+                    return;
+                }
+
+                // CSV 헤더 생성
+                const headers = [
+                    '사번',
+                    '이름',
+                    'Tier',
+                    '런칭보너스 총액',
+                    '1차 런칭보너스',
+                    '2차 런칭보너스'
+                ];
+
+                // CSV 데이터 생성
+                const csvRows = [headers.join(',')];
+                
+                actualPaymentData.forEach(emp => {
+                    const row = [
+                        `"${emp.id}"`,
+                        `"${emp.name}"`,
+                        `"T${emp.tier}"`,
+                        emp.launchBonusTotal,
+                        emp.launchBonusPayment1,
+                        emp.launchBonusPayment2
+                    ];
+                    csvRows.push(row.join(','));
+                });
+
+                // CSV 파일 생성 및 다운로드
+                const csvContent = '\uFEFF' + csvRows.join('\n'); // BOM 추가 (Excel 한글 호환)
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                const today = new Date();
+                const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                const fileName = `실지급금액세팅_${dateStr}.csv`;
+                
+                link.href = url;
+                link.download = fileName;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 메모리 정리
+                URL.revokeObjectURL(url);
+            }
+
+            // 전역 함수로 등록
+            window.openActualPaymentModal = openActualPaymentModal;
+            window.closeActualPaymentModal = closeActualPaymentModal;
+            window.updatePaymentAmount = updatePaymentAmount;
+            window.roundPayment1ToHundredThousand = roundPayment1ToHundredThousand;
+            window.applyTierAmount = applyTierAmount;
+            window.saveActualPayment = saveActualPayment;
+
+            // 실지급 금액 세팅 버튼 이벤트
+            document.getElementById('setupActualPayment').addEventListener('click', openActualPaymentModal);
+            document.getElementById('roundPayment1Btn').addEventListener('click', roundPayment1ToHundredThousand);
+            document.getElementById('resetPaymentBtn').addEventListener('click', resetPaymentToDefault);
+            document.getElementById('saveActualPaymentBtn').addEventListener('click', saveActualPayment);
 
             // CSV 내보내기 버튼 이벤트
             document.getElementById('exportLaunchBonusCSV').addEventListener('click', function() {
@@ -7293,8 +7628,45 @@
                 document.getElementById('noDataModal').classList.add('hidden');
             }
 
+            // 인센티브 금액 확정 버튼으로 스크롤
+            function scrollToIncentiveLockButton() {
+                const lockButton = document.getElementById('lockIncentives');
+                if (lockButton) {
+                    lockButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // 인센티브 금액 확정 버튼 깜빡임 애니메이션
+            function blinkIncentiveLockButton() {
+                const lockButton = document.getElementById('lockIncentives');
+                if (!lockButton) return;
+
+                // 깜빡임 클래스 추가
+                lockButton.classList.add('highlight-button');
+                
+                // 5초 후 깜빡임 제거
+                setTimeout(() => {
+                    lockButton.classList.remove('highlight-button');
+                }, 5000);
+            }
+
+            // 팝업에서 슈퍼캣 인원관리 탭으로 이동하고 버튼으로 스크롤 및 깜빡임
+            function goToIncentiveLockTab() {
+                // 팝업 닫기
+                closeNoDataModal();
+                
+                // 탭 2로 전환 (스크롤 옵션 포함)
+                switchTab(2, { scrollToButton: true });
+                
+                // 스크롤 후 깜빡임 실행
+                setTimeout(() => {
+                    blinkIncentiveLockButton();
+                }, 500);
+            }
+
             // 전역 함수로 등록 (HTML에서 onclick으로 호출하기 위해)
             window.closeNoDataModal = closeNoDataModal;
+            window.goToIncentiveLockTab = goToIncentiveLockTab;
 
             // 검증 테이블 렌더링
             function renderVerificationTable() {
@@ -8168,6 +8540,95 @@
             document.getElementById('randomSampleBtn').addEventListener('click', runRandomSamplingVerification);
         });
     </script>
+
+    <!-- 실지급 금액 세팅 모달 -->
+    <div id="actualPaymentModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 my-4 max-h-[90vh] flex flex-col">
+            <!-- 모달 헤더 -->
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">💰 실지급 금액 세팅</h2>
+                <button onclick="closeActualPaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+            </div>
+
+            <!-- 총액 체크 섹션 -->
+            <div class="px-6 py-4 bg-indigo-50 border-b border-gray-200">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-white p-3 rounded-lg border border-indigo-200">
+                        <div class="text-sm text-indigo-600 mb-1">런칭보너스 총액</div>
+                        <div id="modalTotalBonus" class="text-xl font-bold text-indigo-900">0원</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg border border-indigo-200">
+                        <div class="text-sm text-indigo-600 mb-1">1차 런칭보너스 총액</div>
+                        <div id="modalTotalPayment1" class="text-xl font-bold text-indigo-900">0원</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg border border-indigo-200">
+                        <div class="text-sm text-indigo-600 mb-1">2차 런칭보너스 총액</div>
+                        <div id="modalTotalPayment2" class="text-xl font-bold text-indigo-900">0원</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설명 섹션 -->
+            <div class="px-6 py-4 bg-yellow-50 border-b border-yellow-200">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">ℹ️</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-900 mb-2">1차 금액 정리 기준 안내</h3>
+                        <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                            <li><strong>L3 직원:</strong> Tier별 금액 세팅에 설정된 금액이 그대로 적용됩니다.</li>
+                            <li><strong>L2, L1 직원:</strong> 각 직원의 현재 1차 금액을 <strong>10만원 단위로 반올림</strong>하여 조정됩니다.</li>
+                            <li>모든 조정은 총액이 변하지 않도록 2차 금액이 자동으로 조정됩니다.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 컨트롤 섹션 -->
+            <div class="px-4 py-4 border-b border-gray-200 flex gap-3 items-center flex-wrap">
+                <button id="roundPayment1Btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    🔢 1차 금액 정리
+                </button>
+                <button id="resetPaymentBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-semibold">
+                    🔄 초기화하기
+                </button>
+                <div class="flex items-center gap-2 ml-4">
+                    <span class="text-sm font-semibold text-gray-700">티어별 금액 세팅 (L3 기준):</span>
+                    <div id="tierAmountSettings" class="flex gap-2 flex-wrap">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 데이터 테이블 -->
+            <div class="flex-1 overflow-auto px-6 py-4">
+                <table class="min-w-full border-collapse">
+                    <thead class="bg-gray-100 sticky top-0">
+                        <tr>
+                            <th class="border border-gray-300 px-4 py-2 text-center">사번</th>
+                            <th class="border border-gray-300 px-4 py-2 text-center">이름</th>
+                            <th class="border border-gray-300 px-4 py-2 text-center">Tier</th>
+                            <th class="border border-gray-300 px-4 py-2 text-right">런칭보너스 총액</th>
+                            <th class="border border-gray-300 px-4 py-2 text-right">1차 런칭보너스</th>
+                            <th class="border border-gray-300 px-4 py-2 text-right">2차 런칭보너스</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actualPaymentTableBody">
+                        <!-- 동적으로 생성됨 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 모달 푸터 -->
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <button onclick="closeActualPaymentModal()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+                    취소
+                </button>
+                <button id="saveActualPaymentBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
+                    💾 저장하고 내보내기
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 
