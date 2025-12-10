@@ -3512,7 +3512,7 @@
                         const passwordResult = showPasswordModal();
                         if (!passwordResult) {
                             // 암호가 틀렸거나 취소한 경우, 이전 탭으로 돌아가기
-                            return;
+                        return;
                         }
                         // 암호가 맞으면 isTab2Unlocked가 true로 설정되었으므로 계속 진행
                     }
@@ -3632,6 +3632,139 @@
             let employees = [];
             let lockedIncentives = []; // 확정된 인센티브 데이터 저장
             let isIncentivesLocked = false; // 확정 여부 플래그
+            
+            // 리더 조정 데이터 (호랑 프로젝트 OQ - 2025.12.09 기준)
+            const leaderAdjustments = {
+                "SP004": { tier: 5 },
+                "SP025": { tier: 4 },
+                "SP028": { tier: 2 },
+                "SP041": { tier: 3 },
+                "SP042": { tier: 1 },
+                "SP048": { tier: 3 },
+                "SP052": { tier: 3 },
+                "SP071": { tier: 4 },
+                "SP075": { tier: 2 },
+                "SP083": { tier: 3 },
+                "SP098": { tier: 1 },
+                "SP109": { tier: 3 },
+                "SP117": { tier: 3 },
+                "SP164": { tier: 1 },
+                "SP190": { tier: 3 },
+                "SP224": { tier: 3 },
+                "SP245": { tier: 5 },
+                "SP249": { tier: 1 },
+                "SP252": { tier: 5 },
+                "SP264": { tier: 5 },
+                "SP267": { tier: 4 },
+                "SP298": { tier: 3 },
+                "SP299": { tier: 4 },
+                "SP313": { tier: 2 },
+                "SP328": { tier: 5 },
+                "SP345": { tier: 4 },
+                "SP346": { tier: 3 },
+                "SP357": { tier: 3 },
+                "SP363": { tier: 5 },
+                "SP370": { tier: 5 },
+                "SP371": { tier: 3 },
+                "SP380": { tier: 4 },
+                "SP382": { tier: 5 },
+                "SP401": { tier: 5 },
+                "SP409": { tier: 2 },
+                "SP418": { tier: 4 },
+                "SP419": { tier: 5 },
+                "SP430": { tier: 4 },
+                "SP491": { tier: 5 },
+                "SP504": { tier: 5 },
+                "SP505": { tier: 5 },
+                "SP508": { tier: 3 },
+                "SP535": { tier: 4 },
+                "SP536": { tier: 2 },
+                "SP538": { tier: 2 },
+                "SP559": { tier: 3 },
+                "SP564": { tier: 4 },
+                "SP574": { tier: 5 },
+                "SP584": { tier: 1 },
+                "SP590": { tier: 5 },
+                "SP592": { tier: 4 },
+                "SP597": { tier: 5 },
+                "SP598": { tier: 5 },
+                "SP606": { tier: 5 },
+                "SP607": { tier: 5 },
+                "SP614": { tier: 5 },
+                "SP625": { tier: 4 },
+                "SP631": { tier: 4 },
+                "SP638": { tier: 5 },
+                "SP643": { tier: 5 },
+                "SP645": { tier: 5 },
+                "SP656": { tier: 3 },
+                "SP665": { tier: 4 },
+                "SP668": { tier: 5 },
+                "SP669": { tier: 5 },
+                "SP671": { tier: 4 },
+                "SP672": { tier: 5 },
+                "SP675": { tier: 3 },
+                "SP676": { tier: 5 },
+                "SP677": { tier: 5 },
+                "SP687": { tier: 5 },
+                "SP690": { tier: 6 },
+                "SP693": { tier: 5 },
+                "SP695": { tier: 4 },
+                "SP699": { tier: 3 },
+                "SP700": { tier: 4 },
+                "SP705": { tier: 5 },
+                "SP706": { tier: 5 },
+                "SP707": { tier: 4 },
+                "SP710": { tier: 4 },
+                "SP711": { tier: 4 },
+                "SP720": { tier: 4 },
+                "SP722": { tier: 5 },
+                "SP728": { tier: 5 },
+                "SP730": { tier: 4 },
+                "SP731": { tier: 5 },
+                "SP735": { tier: 4 },
+                "SP737": { tier: 5 },
+                "SP739": { tier: 5 },
+                "SP744": { tier: 3 },
+                "SP754": { tier: 1 },
+                "SP755": { tier: 5 },
+                "SP756": { tier: 5 },
+                "SP764": { tier: 4 },
+                "SP765": { tier: 5 },
+                "SP766": { tier: 3 },
+                "SP768": { tier: 5 },
+                "SP769": { tier: 5 },
+                "SP770": { tier: 3 },
+                "SP771": { tier: 4 },
+                "SP772": { tier: 5 },
+                "SP773": { tier: 5 },
+                "SP774": { tier: 5 },
+                "SP775": { tier: 5 },
+                "SP776": { tier: 5 },
+                "SP777": { tier: 5 },
+                "SP778": { tier: 5 },
+                "SP779": { tier: 5 },
+                "SP781": { tier: 5 },
+                "SP782": { tier: 5 },
+                "SP367": { tier: 5 },
+                "SP433": { tier: 5 },
+                "SP783": { tier: 5 },
+                "SP784": { tier: 5 },
+                "SP785": { tier: 5 },
+                "SP786": { tier: 5 },
+                "SP171": { tier: 3 },
+                "SP177": { tier: 4 },
+                "SP251": { tier: 5 },
+                "SP330": { tier: 4 },
+                "SP103": { tier: 3 },
+                "SP258": { tier: 5 },
+                "SP315": { tier: 5 },
+                "SP383": { tier: 5 },
+                "SP521": { tier: 5 },
+                "SP093": { tier: 4 },
+                "SP107": { tier: 5 },
+                "SP174": { tier: 5 },
+                "SP460": { tier: 5 }
+            };
 
             // CSV 데이터에서 팀/파트/직책/상세직군 정보 매핑 (사번 기준)
             const employeeOrgData = {
@@ -3907,13 +4040,24 @@
                 {id: "SP460", name: "김용제", tier: 5, joinDate: "2022-10-24", salary: 74600000, isNew: true, level: "L2"}
             ];
 
-            // 각 직원에 조직 정보 추가
+            // 각 직원에 조직 정보 추가 및 리더 조정사항 적용
             initialEmployees.forEach(emp => {
                 const orgData = employeeOrgData[emp.id] || {team: "", part: "", position: "", detailRole: ""};
                 emp.team = orgData.team;
                 emp.part = orgData.part;
                 emp.position = orgData.position;
                 emp.detailRole = orgData.detailRole;
+                
+                // 리더 조정사항 적용 확인
+                const adjustment = leaderAdjustments[emp.id];
+                if (adjustment) {
+                    // 원래 tier와 다른 경우 조정됨 플래그 설정
+                    if (adjustment.tier && adjustment.tier !== emp.tier) {
+                        emp.originalTier = emp.tier; // 원래 tier 저장
+                        emp.tier = adjustment.tier; // 조정된 tier로 변경
+                        emp.isAdjusted = true;
+                    }
+                }
             });
 
             function calculateLevel(joinDate, baseDate) {
@@ -4316,6 +4460,12 @@
                     // Find original index for editing
                     const originalIndex = employees.indexOf(emp);
                     const tr = document.createElement('tr');
+                    
+                    // 리더 조정이 있는 경우 행 배경색을 옅은 붉은색으로 변경
+                    if (emp.isAdjusted) {
+                        tr.style.backgroundColor = '#fee2e2'; // Tailwind의 red-100에 해당
+                    }
+                    
                     const joinDate = new Date(emp.joinDate);
                     // 직원 객체에 level 속성이 있으면 그것을 사용, 없으면 계산
                     const level = emp.level || calculateLevel(joinDate, baseDate);
@@ -4354,6 +4504,10 @@
 
                     // 새로 추가된 직원인 경우 이름을 파란색으로 표시
                     const nameStyle = emp.isNew ? 'color: #2563eb; font-weight: 600;' : '';
+                    
+                    // 조정된 직원인 경우 Tier 셀에 툴팁 추가
+                    const tierTooltip = emp.isAdjusted && emp.originalTier ? 
+                        `title="리더 조정: T${emp.originalTier} → T${emp.tier}"` : '';
 
                     tr.innerHTML = `
                         <td class="text-center">${displayIndex + 1}</td>
@@ -4363,7 +4517,7 @@
                         <td class="text-center">${emp.part || '-'}</td>
                         <td class="text-center">${emp.position || '-'}</td>
                         <td class="text-center">${emp.detailRole || '-'}</td>
-                        <td class="text-center">
+                        <td class="text-center" ${tierTooltip}>
                     <select class="input-base" onchange="updateEmployeeTier(${originalIndex}, this.value)">
                         ${[1,2,3,4,5,6,7].map(t => 
                             `<option value="${t}" ${emp.tier === t ? 'selected' : ''}>T${t}</option>`
@@ -4602,13 +4756,27 @@
                 }
 
                 // Add the new employee
-                employees.push({
+                const newEmployee = {
                     id,
                     name,
                     tier,
                     joinDate,
-                    salary: 50000000 // Default salary
-                });
+                    salary: 50000000, // Default salary
+                    isNew: true
+                };
+                
+                // 리더 조정사항 적용 확인
+                const adjustment = leaderAdjustments[id];
+                if (adjustment) {
+                    // 원래 tier와 다른 경우 조정됨 플래그 설정
+                    if (adjustment.tier && adjustment.tier !== tier) {
+                        newEmployee.originalTier = tier; // 원래 tier 저장
+                        newEmployee.tier = adjustment.tier; // 조정된 tier로 변경
+                        newEmployee.isAdjusted = true;
+                    }
+                }
+                
+                employees.push(newEmployee);
 
                 // Clear input fields
                 document.getElementById('newEmpId').value = '';
@@ -4718,7 +4886,7 @@
                     // Replace existing employees with new ones
                     employees = newEmployees;
                     
-                    // 각 직원에 조직 정보 추가 (employeeOrgData 사용)
+                    // 각 직원에 조직 정보 추가
                     employees.forEach(emp => {
                         const orgData = employeeOrgData[emp.id] || {team: "", part: "", position: "", detailRole: ""};
                         emp.team = orgData.team;
@@ -4728,6 +4896,17 @@
                         // isNew 플래그는 CSV에서 가져오지 않으므로 기본값 false로 설정
                         if (emp.isNew === undefined) {
                             emp.isNew = false;
+                        }
+                        
+                        // 리더 조정사항 적용 확인
+                        const adjustment = leaderAdjustments[emp.id];
+                        if (adjustment) {
+                            // 원래 tier와 다른 경우 조정됨 플래그 설정
+                            if (adjustment.tier && adjustment.tier !== emp.tier) {
+                                emp.originalTier = emp.tier; // 원래 tier 저장
+                                emp.tier = adjustment.tier; // 조정된 tier로 변경
+                                emp.isAdjusted = true;
+                            }
                         }
                     });
                     
@@ -7454,37 +7633,37 @@
                 ];
 
                 // CSV 데이터 생성
-                const csvRows = [headers.join(',')];
-                
+                    const csvRows = [headers.join(',')];
+                    
                 actualPaymentData.forEach(emp => {
-                    const row = [
-                        `"${emp.id}"`,
-                        `"${emp.name}"`,
+                        const row = [
+                            `"${emp.id}"`,
+                            `"${emp.name}"`,
                         `"T${emp.tier}"`,
-                        emp.launchBonusTotal,
-                        emp.launchBonusPayment1,
-                        emp.launchBonusPayment2
-                    ];
-                    csvRows.push(row.join(','));
-                });
+                            emp.launchBonusTotal,
+                            emp.launchBonusPayment1,
+                            emp.launchBonusPayment2
+                        ];
+                        csvRows.push(row.join(','));
+                    });
 
                 // CSV 파일 생성 및 다운로드
                 const csvContent = '\uFEFF' + csvRows.join('\n'); // BOM 추가 (Excel 한글 호환)
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                
-                const today = new Date();
-                const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    
+                    const today = new Date();
+                    const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
                 const fileName = `실지급금액세팅_${dateStr}.csv`;
                 
                 link.href = url;
                 link.download = fileName;
                 link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
                 // 메모리 정리
                 URL.revokeObjectURL(url);
             }
@@ -7505,7 +7684,7 @@
 
             // CSV 내보내기 버튼 이벤트
             document.getElementById('exportLaunchBonusCSV').addEventListener('click', function() {
-                exportIncentivesToCSV();
+                    exportIncentivesToCSV();
             });
 
             // ####################
