@@ -1505,6 +1505,7 @@
                                         <th class="text-center" rowspan="2">파트</th>
                                         <th class="text-center" rowspan="2">직책</th>
                                         <th class="text-center" rowspan="2">상세직군</th>
+                                        <th class="text-center" rowspan="2">직전 Tier</th>
                                         <th class="text-center" rowspan="2">Tier</th>
                                         <th class="text-center" rowspan="2">프로젝트 합류일</th>
                                         <th class="text-center" rowspan="2">Level</th>
@@ -1529,7 +1530,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-gray-100">
-                                        <td colspan="10" class="text-right font-bold">합계:</td>
+                                        <td colspan="11" class="text-right font-bold">합계:</td>
                                         <td class="text-right font-bold" id="total_salary">-</td>
                                         <td class="text-right font-bold" id="total_monthly">-</td>
                                         <td class="text-right font-bold" id="total_incentive">-</td>
@@ -3677,6 +3678,7 @@
                 "SP504": { tier: 5 },
                 "SP505": { tier: 5 },
                 "SP508": { tier: 3 },
+                "SP531": { tier: 6 },
                 "SP535": { tier: 4 },
                 "SP536": { tier: 2 },
                 "SP538": { tier: 2 },
@@ -3940,6 +3942,7 @@
                 {id: "SP371", name: "김상조", tier: 4, joinDate: "2022-05-16", salary: 47600000, isNew: false},
                 {id: "SP380", name: "지혜양", tier: 4, joinDate: "2022-05-30", salary: 40500000, isNew: false},
                 {id: "SP508", name: "김은희", tier: 4, joinDate: "2023-01-09", salary: 36000000, isNew: false},
+                {id: "SP531", name: "이재청", tier: 6, joinDate: "2023-03-06", salary: 92500000, isNew: false},
                 {id: "SP564", name: "남다위", tier: 4, joinDate: "2023-05-30", salary: 75200000, isNew: false},
                 {id: "SP592", name: "최지연", tier: 4, joinDate: "2023-09-11", salary: 47600000, isNew: false},
                 {id: "SP631", name: "조상호", tier: 4, joinDate: "2023-11-27", salary: 62500000, isNew: false},
@@ -4508,6 +4511,9 @@
                     // 조정된 직원인 경우 Tier 셀에 툴팁 추가
                     const tierTooltip = emp.isAdjusted && emp.originalTier ? 
                         `title="리더 조정: T${emp.originalTier} → T${emp.tier}"` : '';
+                    
+                    // 직전 Tier 표시 (조정이 있었던 경우 원래 Tier, 없으면 현재 Tier)
+                    const previousTier = emp.originalTier || emp.tier;
 
                     tr.innerHTML = `
                         <td class="text-center">${displayIndex + 1}</td>
@@ -4517,6 +4523,7 @@
                         <td class="text-center">${emp.part || '-'}</td>
                         <td class="text-center">${emp.position || '-'}</td>
                         <td class="text-center">${emp.detailRole || '-'}</td>
+                        <td class="text-center">T${previousTier}</td>
                         <td class="text-center" ${tierTooltip}>
                     <select class="input-base" onchange="updateEmployeeTier(${originalIndex}, this.value)">
                         ${[1,2,3,4,5,6,7].map(t => 
@@ -4615,6 +4622,11 @@
                 const newTierInt = parseInt(newTier);
                 const oldTier = employees[index].tier;
                 
+                // Tier가 변경되는 경우에만 처리
+                if (oldTier === newTierInt) {
+                    return;
+                }
+                
                 // Count employees in each tier after the change
                 const tierCounts = employees.reduce((acc, emp, i) => {
                     if (i === index) {
@@ -4652,6 +4664,14 @@
                     if (select) select.value = oldTier;
                     return;
                 }
+                
+                // Tier 변경 시 직전 Tier 저장
+                if (!employees[index].originalTier) {
+                    // 처음 변경하는 경우, 현재 Tier를 originalTier로 저장
+                    employees[index].originalTier = oldTier;
+                }
+                // isAdjusted 플래그 설정 (수동 변경도 조정으로 표시)
+                employees[index].isAdjusted = true;
                 
                 employees[index].tier = newTierInt;
                 updateEmployeeTable();
