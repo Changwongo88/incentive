@@ -1394,6 +1394,111 @@
                             <span id="searchResultText"></span>
                         </div>
 
+                        <!-- 컬럼 숨기기 설정 -->
+                        <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-semibold text-gray-700">📋 컬럼 표시 설정</h4>
+                                <div class="flex gap-2">
+                                    <button id="applyColumnVisibility" class="bg-indigo-600 text-white px-4 py-1.5 rounded-md hover:bg-indigo-700 transition-colors text-sm font-semibold">
+                                        적용
+                                    </button>
+                                    <button id="resetColumnVisibility" class="bg-gray-500 text-white px-4 py-1.5 rounded-md hover:bg-gray-600 transition-colors text-sm font-semibold">
+                                        초기화
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 text-sm">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_no" class="column-toggle" checked>
+                                    <span>순번</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_id" class="column-toggle" checked>
+                                    <span>사번</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_name" class="column-toggle" checked>
+                                    <span>이름</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_team" class="column-toggle" checked>
+                                    <span>팀</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_part" class="column-toggle" checked>
+                                    <span>파트</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_position" class="column-toggle" checked>
+                                    <span>직책</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_detailRole" class="column-toggle" checked>
+                                    <span>상세직군</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_previousTier" class="column-toggle" checked>
+                                    <span>직전 Tier</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_tier" class="column-toggle" checked>
+                                    <span>Tier</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_joinDate" class="column-toggle" checked>
+                                    <span>프로젝트 합류일</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_level" class="column-toggle" checked>
+                                    <span>Level</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_salary" class="column-toggle" checked>
+                                    <span>연봉</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_monthlySalary" class="column-toggle" checked>
+                                    <span>월급</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_incentive" class="column-toggle" checked>
+                                    <span>성과 인센티브</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_incentiveRatio" class="column-toggle" checked>
+                                    <span>성과급 배수</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_bonusTotal" class="column-toggle" checked>
+                                    <span>런칭보너스 총액</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_bonusRatio" class="column-toggle" checked>
+                                    <span>런칭보너스 배수</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_bonusPayment1" class="column-toggle" checked>
+                                    <span>1차 지급</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_bonusPayment1Ratio" class="column-toggle" checked>
+                                    <span>1차 배수</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_bonusPayment2" class="column-toggle" checked>
+                                    <span>2차 지급</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_bonusPayment2Ratio" class="column-toggle" checked>
+                                    <span>2차 배수</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="col_actions" class="column-toggle" checked>
+                                    <span>관리</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <!-- 인센티브 확정 및 CSV 내보내기 버튼 -->
                         <div class="mb-4 flex gap-3">
                             <button id="setupActualPayment" class="bg-purple-600 text-white px-6 py-2.5 rounded-md hover:bg-purple-700 transition-colors font-semibold shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
@@ -3634,6 +3739,58 @@
             let lockedIncentives = []; // 확정된 인센티브 데이터 저장
             let isIncentivesLocked = false; // 확정 여부 플래그
             
+            // 컬럼 표시 상태 저장
+            let columnVisibility = {
+                no: true,
+                id: true,
+                name: true,
+                team: true,
+                part: true,
+                position: true,
+                detailRole: true,
+                previousTier: true,
+                tier: true,
+                joinDate: true,
+                level: true,
+                salary: true,
+                monthlySalary: true,
+                incentive: true,
+                incentiveRatio: true,
+                bonusTotal: true,
+                bonusRatio: true,
+                bonusPayment1: true,
+                bonusPayment1Ratio: true,
+                bonusPayment2: true,
+                bonusPayment2Ratio: true,
+                actions: true
+            };
+            
+            // 컬럼 인덱스 매핑 (0부터 시작)
+            const columnIndexMap = {
+                no: 0,
+                id: 1,
+                name: 2,
+                team: 3,
+                part: 4,
+                position: 5,
+                detailRole: 6,
+                previousTier: 7,
+                tier: 8,
+                joinDate: 9,
+                level: 10,
+                salary: 11,
+                monthlySalary: 12,
+                incentive: 13,
+                incentiveRatio: 14,
+                bonusTotal: 15,
+                bonusRatio: 16,
+                bonusPayment1: 17,
+                bonusPayment1Ratio: 18,
+                bonusPayment2: 19,
+                bonusPayment2Ratio: 20,
+                actions: 21
+            };
+            
             // 리더 조정 데이터 (호랑 프로젝트 OQ - 2025.12.09 기준)
             const leaderAdjustments = {
                 "SP004": { tier: 5 },
@@ -5030,6 +5187,146 @@
                 sortOrderSelect.addEventListener('change', updateEmployeeTable);
             }
             
+            // 컬럼 숨기기 함수들
+            function applyColumnVisibility() {
+                // 체크박스 상태 읽기
+                columnVisibility.no = document.getElementById('col_no').checked;
+                columnVisibility.id = document.getElementById('col_id').checked;
+                columnVisibility.name = document.getElementById('col_name').checked;
+                columnVisibility.team = document.getElementById('col_team').checked;
+                columnVisibility.part = document.getElementById('col_part').checked;
+                columnVisibility.position = document.getElementById('col_position').checked;
+                columnVisibility.detailRole = document.getElementById('col_detailRole').checked;
+                columnVisibility.previousTier = document.getElementById('col_previousTier').checked;
+                columnVisibility.tier = document.getElementById('col_tier').checked;
+                columnVisibility.joinDate = document.getElementById('col_joinDate').checked;
+                columnVisibility.level = document.getElementById('col_level').checked;
+                columnVisibility.salary = document.getElementById('col_salary').checked;
+                columnVisibility.monthlySalary = document.getElementById('col_monthlySalary').checked;
+                columnVisibility.incentive = document.getElementById('col_incentive').checked;
+                columnVisibility.incentiveRatio = document.getElementById('col_incentiveRatio').checked;
+                columnVisibility.bonusTotal = document.getElementById('col_bonusTotal').checked;
+                columnVisibility.bonusRatio = document.getElementById('col_bonusRatio').checked;
+                columnVisibility.bonusPayment1 = document.getElementById('col_bonusPayment1').checked;
+                columnVisibility.bonusPayment1Ratio = document.getElementById('col_bonusPayment1Ratio').checked;
+                columnVisibility.bonusPayment2 = document.getElementById('col_bonusPayment2').checked;
+                columnVisibility.bonusPayment2Ratio = document.getElementById('col_bonusPayment2Ratio').checked;
+                columnVisibility.actions = document.getElementById('col_actions').checked;
+                
+                // 테이블 헤더와 바디에 적용
+                updateColumnVisibility();
+            }
+            
+            function updateColumnVisibility() {
+                const table = document.querySelector('#employeeTableBody').closest('table');
+                if (!table) return;
+                
+                // 헤더 행들 처리
+                const headerRows = table.querySelectorAll('thead tr');
+                
+                // 첫 번째 헤더 행 (주요 컬럼들)
+                if (headerRows[0]) {
+                    const headerCells = headerRows[0].querySelectorAll('th');
+                    if (headerCells[0]) headerCells[0].style.display = columnVisibility.no ? '' : 'none';
+                    if (headerCells[1]) headerCells[1].style.display = columnVisibility.id ? '' : 'none';
+                    if (headerCells[2]) headerCells[2].style.display = columnVisibility.name ? '' : 'none';
+                    if (headerCells[3]) headerCells[3].style.display = columnVisibility.team ? '' : 'none';
+                    if (headerCells[4]) headerCells[4].style.display = columnVisibility.part ? '' : 'none';
+                    if (headerCells[5]) headerCells[5].style.display = columnVisibility.position ? '' : 'none';
+                    if (headerCells[6]) headerCells[6].style.display = columnVisibility.detailRole ? '' : 'none';
+                    if (headerCells[7]) headerCells[7].style.display = columnVisibility.previousTier ? '' : 'none';
+                    if (headerCells[8]) headerCells[8].style.display = columnVisibility.tier ? '' : 'none';
+                    if (headerCells[9]) headerCells[9].style.display = columnVisibility.joinDate ? '' : 'none';
+                    if (headerCells[10]) headerCells[10].style.display = columnVisibility.level ? '' : 'none';
+                    if (headerCells[11]) headerCells[11].style.display = columnVisibility.salary ? '' : 'none';
+                    if (headerCells[12]) headerCells[12].style.display = columnVisibility.monthlySalary ? '' : 'none';
+                    if (headerCells[13]) headerCells[13].style.display = columnVisibility.incentive ? '' : 'none';
+                    if (headerCells[14]) headerCells[14].style.display = columnVisibility.incentiveRatio ? '' : 'none';
+                    // 런칭 보너스는 colspan이 있어서 특별 처리
+                    const bonusVisible = columnVisibility.bonusTotal || columnVisibility.bonusRatio || 
+                                        columnVisibility.bonusPayment1 || columnVisibility.bonusPayment1Ratio ||
+                                        columnVisibility.bonusPayment2 || columnVisibility.bonusPayment2Ratio;
+                    if (headerCells[15]) headerCells[15].style.display = bonusVisible ? '' : 'none';
+                    if (headerCells[16]) headerCells[16].style.display = columnVisibility.actions ? '' : 'none';
+                }
+                
+                // 두 번째 헤더 행 (런칭 보너스 세부)
+                if (headerRows[1]) {
+                    const subHeaderCells = headerRows[1].querySelectorAll('th');
+                    if (subHeaderCells[0]) subHeaderCells[0].style.display = columnVisibility.bonusTotal ? '' : 'none';
+                    if (subHeaderCells[1]) subHeaderCells[1].style.display = columnVisibility.bonusRatio ? '' : 'none';
+                    if (subHeaderCells[2]) subHeaderCells[2].style.display = columnVisibility.bonusPayment1 ? '' : 'none';
+                    if (subHeaderCells[3]) subHeaderCells[3].style.display = columnVisibility.bonusPayment1Ratio ? '' : 'none';
+                    if (subHeaderCells[4]) subHeaderCells[4].style.display = columnVisibility.bonusPayment2 ? '' : 'none';
+                    if (subHeaderCells[5]) subHeaderCells[5].style.display = columnVisibility.bonusPayment2Ratio ? '' : 'none';
+                }
+                
+                // tbody의 모든 행 처리
+                const tbody = document.getElementById('employeeTableBody');
+                if (tbody) {
+                    const rows = tbody.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells[0]) cells[0].style.display = columnVisibility.no ? '' : 'none';
+                        if (cells[1]) cells[1].style.display = columnVisibility.id ? '' : 'none';
+                        if (cells[2]) cells[2].style.display = columnVisibility.name ? '' : 'none';
+                        if (cells[3]) cells[3].style.display = columnVisibility.team ? '' : 'none';
+                        if (cells[4]) cells[4].style.display = columnVisibility.part ? '' : 'none';
+                        if (cells[5]) cells[5].style.display = columnVisibility.position ? '' : 'none';
+                        if (cells[6]) cells[6].style.display = columnVisibility.detailRole ? '' : 'none';
+                        if (cells[7]) cells[7].style.display = columnVisibility.previousTier ? '' : 'none';
+                        if (cells[8]) cells[8].style.display = columnVisibility.tier ? '' : 'none';
+                        if (cells[9]) cells[9].style.display = columnVisibility.joinDate ? '' : 'none';
+                        if (cells[10]) cells[10].style.display = columnVisibility.level ? '' : 'none';
+                        if (cells[11]) cells[11].style.display = columnVisibility.salary ? '' : 'none';
+                        if (cells[12]) cells[12].style.display = columnVisibility.monthlySalary ? '' : 'none';
+                        if (cells[13]) cells[13].style.display = columnVisibility.incentive ? '' : 'none';
+                        if (cells[14]) cells[14].style.display = columnVisibility.incentiveRatio ? '' : 'none';
+                        if (cells[15]) cells[15].style.display = columnVisibility.bonusTotal ? '' : 'none';
+                        if (cells[16]) cells[16].style.display = columnVisibility.bonusRatio ? '' : 'none';
+                        if (cells[17]) cells[17].style.display = columnVisibility.bonusPayment1 ? '' : 'none';
+                        if (cells[18]) cells[18].style.display = columnVisibility.bonusPayment1Ratio ? '' : 'none';
+                        if (cells[19]) cells[19].style.display = columnVisibility.bonusPayment2 ? '' : 'none';
+                        if (cells[20]) cells[20].style.display = columnVisibility.bonusPayment2Ratio ? '' : 'none';
+                        if (cells[21]) cells[21].style.display = columnVisibility.actions ? '' : 'none';
+                    });
+                }
+                
+                // tfoot 처리
+                const tfoot = table.querySelector('tfoot');
+                if (tfoot) {
+                    const footerRow = tfoot.querySelector('tr');
+                    if (footerRow) {
+                        const footerCells = footerRow.querySelectorAll('td');
+                        if (footerCells[1]) footerCells[1].style.display = columnVisibility.salary ? '' : 'none';
+                        if (footerCells[2]) footerCells[2].style.display = columnVisibility.monthlySalary ? '' : 'none';
+                        if (footerCells[3]) footerCells[3].style.display = columnVisibility.incentive ? '' : 'none';
+                        if (footerCells[4]) footerCells[4].style.display = columnVisibility.incentiveRatio ? '' : 'none';
+                        if (footerCells[5]) footerCells[5].style.display = columnVisibility.bonusTotal ? '' : 'none';
+                        if (footerCells[6]) footerCells[6].style.display = columnVisibility.bonusRatio ? '' : 'none';
+                        if (footerCells[7]) footerCells[7].style.display = columnVisibility.bonusPayment1 ? '' : 'none';
+                        if (footerCells[8]) footerCells[8].style.display = columnVisibility.bonusPayment1Ratio ? '' : 'none';
+                        if (footerCells[9]) footerCells[9].style.display = columnVisibility.bonusPayment2 ? '' : 'none';
+                        if (footerCells[10]) footerCells[10].style.display = columnVisibility.bonusPayment2Ratio ? '' : 'none';
+                    }
+                }
+            }
+            
+            function resetColumnVisibility() {
+                // 모든 체크박스를 체크 상태로
+                document.querySelectorAll('.column-toggle').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                
+                // 모든 컬럼을 표시 상태로
+                for (let key in columnVisibility) {
+                    columnVisibility[key] = true;
+                }
+                
+                // 테이블 업데이트
+                updateColumnVisibility();
+            }
+            
             // Reset filters button
             if (resetFiltersBtn) {
                 resetFiltersBtn.addEventListener('click', () => {
@@ -5042,6 +5339,17 @@
                     if (sortOrderSelect) sortOrderSelect.value = 'none';
                     updateEmployeeTable();
                 });
+            }
+            
+            // 컬럼 숨기기 이벤트 리스너
+            const applyColumnVisibilityBtn = document.getElementById('applyColumnVisibility');
+            const resetColumnVisibilityBtn = document.getElementById('resetColumnVisibility');
+            
+            if (applyColumnVisibilityBtn) {
+                applyColumnVisibilityBtn.addEventListener('click', applyColumnVisibility);
+            }
+            if (resetColumnVisibilityBtn) {
+                resetColumnVisibilityBtn.addEventListener('click', resetColumnVisibility);
             }
             
             // Initial population
